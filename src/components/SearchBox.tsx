@@ -1,4 +1,4 @@
-import { Input, Kbd } from "@lumen-media/module-sdk/ui"
+import { Input, Kbd } from "@lumen-media/ui"
 import { t } from "../i18n.js"
 
 interface SearchBoxProps {

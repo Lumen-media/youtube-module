@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react"
-import { ScrollArea } from "@lumen-media/module-sdk/ui"
+import { ScrollArea } from "@lumen-media/ui"
 import type { YoutubeVideoResult } from "../youtube-types.js"
 import { ResultRow } from "./ResultRow.js"
 

@@ -1,4 +1,4 @@
-import { Kbd } from "@lumen-media/module-sdk/ui"
+import { Kbd } from "@lumen-media/ui"
 import type { YoutubeVideoResult } from "../youtube-types.js"
 import { t } from "../i18n.js"
 

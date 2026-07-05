@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Button, Input, Label, Select } from "@lumen-media/module-sdk/ui"
+import { Button, Input, Label, Select } from "@lumen-media/ui"
 import type { YoutubePreferences } from "../youtube-types.js"
 import { t } from "../i18n.js"
 

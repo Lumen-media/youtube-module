@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Button, Empty } from "@lumen-media/module-sdk/ui"
+import { Button, Empty } from "@lumen-media/ui"
 import type { LumenHost } from "@lumen-media/module-sdk"
 import type { YoutubeVideoResult, YoutubePreferences, SearchError } from "../youtube-types.js"
 import { YoutubeApi } from "../youtube-api.js"
