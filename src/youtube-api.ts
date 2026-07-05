@@ -80,22 +80,22 @@ export class YoutubeApi {
 
     let searchResponse: YoutubeSearchResponse
     try {
-      searchResponse = await this.net.get<YoutubeSearchResponse>(
-        "https://www.googleapis.com/youtube/v3/search",
-        {
-          query: {
-            part: "snippet",
-            type: "video",
-            q: query,
-            key,
-            maxResults: String(this.prefs.maxResults),
-            safeSearch: this.prefs.safeSearch,
-            ...(this.prefs.regionCode ? { regionCode: this.prefs.regionCode } : {}),
-            ...(this.prefs.relevanceLanguage ? { relevanceLanguage: this.prefs.relevanceLanguage } : {}),
-            ...(pageToken ? { pageToken } : {}),
-          },
+      const res = await this.net.request<YoutubeSearchResponse>({
+        method: "get",
+        url: "https://www.googleapis.com/youtube/v3/search",
+        query: {
+          part: "snippet",
+          type: "video",
+          q: query,
+          key,
+          maxResults: String(this.prefs.maxResults),
+          safeSearch: this.prefs.safeSearch,
+          ...(this.prefs.regionCode ? { regionCode: this.prefs.regionCode } : {}),
+          ...(this.prefs.relevanceLanguage ? { relevanceLanguage: this.prefs.relevanceLanguage } : {}),
+          ...(pageToken ? { pageToken } : {}),
         },
-      )
+      })
+      searchResponse = res.data
     } catch (err: unknown) {
       throw this.normalizeError(err)
     }
@@ -109,18 +109,17 @@ export class YoutubeApi {
     let detailsMap = new Map<string, NonNullable<YoutubeVideoResponse["items"]>[number]>()
     if (videoIds.length > 0) {
       try {
-        const detailsResponse = await this.net.get<YoutubeVideoResponse>(
-          "https://www.googleapis.com/youtube/v3/videos",
-          {
-            query: {
-              part: "contentDetails,statistics",
-              id: videoIds.join(","),
-              key,
-            },
+        const detailsRes = await this.net.request<YoutubeVideoResponse>({
+          method: "get",
+          url: "https://www.googleapis.com/youtube/v3/videos",
+          query: {
+            part: "contentDetails,statistics",
+            id: videoIds.join(","),
+            key,
           },
-        )
-        if (detailsResponse.items) {
-          for (const item of detailsResponse.items) {
+        })
+        if (detailsRes.data.items) {
+          for (const item of detailsRes.data.items) {
             detailsMap.set(item.id, item)
           }
         }
