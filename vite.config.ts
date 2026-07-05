@@ -26,7 +26,7 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(process.cwd(), "src/main.ts"),
+      entry: resolve(process.cwd(), "src/main.tsx"),
       formats: ["es"],
       fileName: () => "main.js",
     },
