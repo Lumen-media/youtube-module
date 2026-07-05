@@ -225,16 +225,16 @@ export function YoutubeCommanderApp({ host, prefsStore, initialQuery }: YoutubeC
       {showEmptyState && !hasKey && (
         <div style={{ padding: 16 }}>
           <Empty>
-            <Empty.Media>🎬</Empty.Media>
-            <Empty.Header>
-              <Empty.Title>{t("noKeyTitle")}</Empty.Title>
-              <Empty.Description>{t("noKeyDescription")}</Empty.Description>
-            </Empty.Header>
-            <Empty.Content>
+            <Empty.EmptyMedia>🎬</Empty.EmptyMedia>
+            <Empty.EmptyHeader>
+              <Empty.EmptyTitle>{t("noKeyTitle")}</Empty.EmptyTitle>
+              <Empty.EmptyDescription>{t("noKeyDescription")}</Empty.EmptyDescription>
+            </Empty.EmptyHeader>
+            <Empty.EmptyContent>
               <Button onClick={() => setView("settings")}>
                 {t("configureKey")}
               </Button>
-            </Empty.Content>
+            </Empty.EmptyContent>
           </Empty>
         </div>
       )}
@@ -242,11 +242,11 @@ export function YoutubeCommanderApp({ host, prefsStore, initialQuery }: YoutubeC
       {showEmptyState && hasKey && query.trim() === "" && !initialQuery && (
         <div style={{ padding: 16 }}>
           <Empty>
-            <Empty.Media>🔍</Empty.Media>
-            <Empty.Header>
-              <Empty.Title>{t("searchReady")}</Empty.Title>
-              <Empty.Description>{t("searchReadyDescription")}</Empty.Description>
-            </Empty.Header>
+            <Empty.EmptyMedia>🔍</Empty.EmptyMedia>
+            <Empty.EmptyHeader>
+              <Empty.EmptyTitle>{t("searchReady")}</Empty.EmptyTitle>
+              <Empty.EmptyDescription>{t("searchReadyDescription")}</Empty.EmptyDescription>
+            </Empty.EmptyHeader>
           </Empty>
         </div>
       )}
@@ -254,11 +254,11 @@ export function YoutubeCommanderApp({ host, prefsStore, initialQuery }: YoutubeC
       {!loading && !error && hasKey && query.trim() && results.length === 0 && (
         <div style={{ padding: 16 }}>
           <Empty>
-            <Empty.Media>📭</Empty.Media>
-            <Empty.Header>
-              <Empty.Title>{t("noResults")}</Empty.Title>
-              <Empty.Description>{t("noResultsDescription")}</Empty.Description>
-            </Empty.Header>
+            <Empty.EmptyMedia>📭</Empty.EmptyMedia>
+            <Empty.EmptyHeader>
+              <Empty.EmptyTitle>{t("noResults")}</Empty.EmptyTitle>
+              <Empty.EmptyDescription>{t("noResultsDescription")}</Empty.EmptyDescription>
+            </Empty.EmptyHeader>
           </Empty>
         </div>
       )}
@@ -271,64 +271,64 @@ function ErrorState({ error, onOpenSettings }: { error: SearchError; onOpenSetti
     case "missing_key":
       return (
         <Empty>
-          <Empty.Media>🔑</Empty.Media>
-          <Empty.Header>
-            <Empty.Title>{t("noKeyTitle")}</Empty.Title>
-            <Empty.Description>{t("noKeyDescription")}</Empty.Description>
-          </Empty.Header>
-          <Empty.Content>
+          <Empty.EmptyMedia>🔑</Empty.EmptyMedia>
+          <Empty.EmptyHeader>
+            <Empty.EmptyTitle>{t("noKeyTitle")}</Empty.EmptyTitle>
+            <Empty.EmptyDescription>{t("noKeyDescription")}</Empty.EmptyDescription>
+          </Empty.EmptyHeader>
+          <Empty.EmptyContent>
             <Button onClick={onOpenSettings}>{t("configureKey")}</Button>
-          </Empty.Content>
+          </Empty.EmptyContent>
         </Empty>
       )
 
     case "invalid_key":
       return (
         <Empty>
-          <Empty.Media>🔑</Empty.Media>
-          <Empty.Header>
-            <Empty.Title>{t("invalidKeyTitle")}</Empty.Title>
-            <Empty.Description>{t("invalidKeyDescription")}</Empty.Description>
-          </Empty.Header>
-          <Empty.Content>
+          <Empty.EmptyMedia>🔑</Empty.EmptyMedia>
+          <Empty.EmptyHeader>
+            <Empty.EmptyTitle>{t("invalidKeyTitle")}</Empty.EmptyTitle>
+            <Empty.EmptyDescription>{t("invalidKeyDescription")}</Empty.EmptyDescription>
+          </Empty.EmptyHeader>
+          <Empty.EmptyContent>
             <Button onClick={onOpenSettings}>{t("editKey")}</Button>
-          </Empty.Content>
+          </Empty.EmptyContent>
         </Empty>
       )
 
     case "quota_exceeded":
       return (
         <Empty>
-          <Empty.Media>📊</Empty.Media>
-          <Empty.Header>
-            <Empty.Title>{t("quotaTitle")}</Empty.Title>
-            <Empty.Description>{t("quotaDescription")}</Empty.Description>
-          </Empty.Header>
+          <Empty.EmptyMedia>📊</Empty.EmptyMedia>
+          <Empty.EmptyHeader>
+            <Empty.EmptyTitle>{t("quotaTitle")}</Empty.EmptyTitle>
+            <Empty.EmptyDescription>{t("quotaDescription")}</Empty.EmptyDescription>
+          </Empty.EmptyHeader>
         </Empty>
       )
 
     case "network":
       return (
         <Empty>
-          <Empty.Media>🌐</Empty.Media>
-          <Empty.Header>
-            <Empty.Title>{t("networkTitle")}</Empty.Title>
-            <Empty.Description>{error.message}</Empty.Description>
-          </Empty.Header>
-          <Empty.Content>
+          <Empty.EmptyMedia>🌐</Empty.EmptyMedia>
+          <Empty.EmptyHeader>
+            <Empty.EmptyTitle>{t("networkTitle")}</Empty.EmptyTitle>
+            <Empty.EmptyDescription>{error.message}</Empty.EmptyDescription>
+          </Empty.EmptyHeader>
+          <Empty.EmptyContent>
             <Button onClick={() => window.location.reload()}>{t("retry")}</Button>
-          </Empty.Content>
+          </Empty.EmptyContent>
         </Empty>
       )
 
     case "api":
       return (
         <Empty>
-          <Empty.Media>⚠️</Empty.Media>
-          <Empty.Header>
-            <Empty.Title>{t("apiErrorTitle")}</Empty.Title>
-            <Empty.Description>{error.message}</Empty.Description>
-          </Empty.Header>
+          <Empty.EmptyMedia>⚠️</Empty.EmptyMedia>
+          <Empty.EmptyHeader>
+            <Empty.EmptyTitle>{t("apiErrorTitle")}</Empty.EmptyTitle>
+            <Empty.EmptyDescription>{error.message}</Empty.EmptyDescription>
+          </Empty.EmptyHeader>
         </Empty>
       )
   }

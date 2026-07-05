@@ -94,41 +94,41 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           <Label>{t("safeSearchLabel")}</Label>
           <Select value={safeSearch} onValueChange={(v) => setSafeSearch(v as YoutubePreferences["safeSearch"])}>
-            <Select.Trigger style={{ width: "100%" }}>
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value="none">{t("safeNone")}</Select.Item>
-              <Select.Item value="moderate">{t("safeModerate")}</Select.Item>
-              <Select.Item value="strict">{t("safeStrict")}</Select.Item>
-            </Select.Content>
+            <Select.SelectTrigger style={{ width: "100%" }}>
+              <Select.SelectValue />
+            </Select.SelectTrigger>
+            <Select.SelectContent>
+              <Select.SelectItem value="none">{t("safeNone")}</Select.SelectItem>
+              <Select.SelectItem value="moderate">{t("safeModerate")}</Select.SelectItem>
+              <Select.SelectItem value="strict">{t("safeStrict")}</Select.SelectItem>
+            </Select.SelectContent>
           </Select>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           <Label>{t("maxResultsLabel")}</Label>
           <Select value={String(maxResults)} onValueChange={(v) => setMaxResults(Number(v) as YoutubePreferences["maxResults"])}>
-            <Select.Trigger style={{ width: "100%" }}>
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value="10">10</Select.Item>
-              <Select.Item value="25">25</Select.Item>
-              <Select.Item value="50">50</Select.Item>
-            </Select.Content>
+            <Select.SelectTrigger style={{ width: "100%" }}>
+              <Select.SelectValue />
+            </Select.SelectTrigger>
+            <Select.SelectContent>
+              <Select.SelectItem value="10">10</Select.SelectItem>
+              <Select.SelectItem value="25">25</Select.SelectItem>
+              <Select.SelectItem value="50">50</Select.SelectItem>
+            </Select.SelectContent>
           </Select>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 4, gridColumn: "1 / -1" }}>
           <Label>{t("defaultActionLabel")}</Label>
           <Select value={defaultAction} onValueChange={(v) => setDefaultAction(v as YoutubePreferences["defaultAction"])}>
-            <Select.Trigger style={{ width: "100%" }}>
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item value="addToQueue">{t("actionAddToQueue")}</Select.Item>
-              <Select.Item value="playNow">{t("actionPlayNow")}</Select.Item>
-            </Select.Content>
+            <Select.SelectTrigger style={{ width: "100%" }}>
+              <Select.SelectValue />
+            </Select.SelectTrigger>
+            <Select.SelectContent>
+              <Select.SelectItem value="addToQueue">{t("actionAddToQueue")}</Select.SelectItem>
+              <Select.SelectItem value="playNow">{t("actionPlayNow")}</Select.SelectItem>
+            </Select.SelectContent>
           </Select>
         </div>
       </div>
