@@ -5,7 +5,9 @@
   "api": "^0.1.0",
   "minLumenVersion": "0.1.0",
   "description": "Search YouTube videos and add them to your queue, library, or play them directly.",
-  "author": "Lumen Media",
+  "author": {
+    "name": "Lumen Media"
+  },
   "entry": "main.js",
   "license": "MIT",
   "permissions": {
