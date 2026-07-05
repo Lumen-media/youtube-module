@@ -174,11 +174,11 @@ export function YoutubeCommanderApp({ host, prefsStore, initialQuery }: YoutubeC
 
   return (
     <div
-      style={{ display: "flex", flexDirection: "column", height: "100%" }}
+      style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}
       onKeyDown={handleKeyDown}
       tabIndex={-1}
     >
-      <div style={{ display: "flex", alignItems: "center", borderBottom: "1px solid var(--border)" }}>
+      <div style={{ display: "flex", alignItems: "center", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
         <SearchBox
           value={query}
           onChange={setQuery}
@@ -196,72 +196,74 @@ export function YoutubeCommanderApp({ host, prefsStore, initialQuery }: YoutubeC
         </Button>
       </div>
 
-      {loading && (
-        <div style={{ padding: 16, textAlign: "center", color: "var(--muted-foreground)" }}>
-          {t("searching")}
-        </div>
-      )}
+      <div style={{ flex: 1, overflow: "auto", minHeight: 0 }}>
+        {loading && (
+          <div style={{ padding: 16, textAlign: "center", color: "var(--muted-foreground)" }}>
+            {t("searching")}
+          </div>
+        )}
 
-      {error && !loading && (
-        <div style={{ padding: 16 }}>
-          <ErrorState error={error} onOpenSettings={() => setView("settings")} />
-        </div>
-      )}
+        {error && !loading && (
+          <div style={{ padding: 16 }}>
+            <ErrorState error={error} onOpenSettings={() => setView("settings")} />
+          </div>
+        )}
 
-      {!loading && !error && results.length > 0 && (
-        <ResultList
-          results={results}
-          selectedIndex={selectedIndex}
-          onSelectIndex={setSelectedIndex}
-          onPlay={handlePlay}
-          onAddToQueue={handleAddToQueue}
-          onAddNext={handleAddNext}
-          onAddToLibrary={handleAddToLibrary}
-          onOpenExternal={handleOpenExternal}
-          onCopyUrl={handleCopyUrl}
-        />
-      )}
+        {!loading && !error && results.length > 0 && (
+          <ResultList
+            results={results}
+            selectedIndex={selectedIndex}
+            onSelectIndex={setSelectedIndex}
+            onPlay={handlePlay}
+            onAddToQueue={handleAddToQueue}
+            onAddNext={handleAddNext}
+            onAddToLibrary={handleAddToLibrary}
+            onOpenExternal={handleOpenExternal}
+            onCopyUrl={handleCopyUrl}
+          />
+        )}
 
-      {showEmptyState && !hasKey && (
-        <div style={{ padding: 16 }}>
-          <Empty>
-            <Empty.EmptyMedia>🎬</Empty.EmptyMedia>
-            <Empty.EmptyHeader>
-              <Empty.EmptyTitle>{t("noKeyTitle")}</Empty.EmptyTitle>
-              <Empty.EmptyDescription>{t("noKeyDescription")}</Empty.EmptyDescription>
-            </Empty.EmptyHeader>
-            <Empty.EmptyContent>
-              <Button onClick={() => setView("settings")}>
-                {t("configureKey")}
-              </Button>
-            </Empty.EmptyContent>
-          </Empty>
-        </div>
-      )}
+        {showEmptyState && !hasKey && (
+          <div style={{ padding: 16 }}>
+            <Empty>
+              <Empty.EmptyMedia>🎬</Empty.EmptyMedia>
+              <Empty.EmptyHeader>
+                <Empty.EmptyTitle>{t("noKeyTitle")}</Empty.EmptyTitle>
+                <Empty.EmptyDescription>{t("noKeyDescription")}</Empty.EmptyDescription>
+              </Empty.EmptyHeader>
+              <Empty.EmptyContent>
+                <Button onClick={() => setView("settings")}>
+                  {t("configureKey")}
+                </Button>
+              </Empty.EmptyContent>
+            </Empty>
+          </div>
+        )}
 
-      {showEmptyState && hasKey && query.trim() === "" && !initialQuery && (
-        <div style={{ padding: 16 }}>
-          <Empty>
-            <Empty.EmptyMedia>🔍</Empty.EmptyMedia>
-            <Empty.EmptyHeader>
-              <Empty.EmptyTitle>{t("searchReady")}</Empty.EmptyTitle>
-              <Empty.EmptyDescription>{t("searchReadyDescription")}</Empty.EmptyDescription>
-            </Empty.EmptyHeader>
-          </Empty>
-        </div>
-      )}
+        {showEmptyState && hasKey && query.trim() === "" && !initialQuery && (
+          <div style={{ padding: 16 }}>
+            <Empty>
+              <Empty.EmptyMedia>🔍</Empty.EmptyMedia>
+              <Empty.EmptyHeader>
+                <Empty.EmptyTitle>{t("searchReady")}</Empty.EmptyTitle>
+                <Empty.EmptyDescription>{t("searchReadyDescription")}</Empty.EmptyDescription>
+              </Empty.EmptyHeader>
+            </Empty>
+          </div>
+        )}
 
-      {!loading && !error && hasKey && query.trim() && results.length === 0 && (
-        <div style={{ padding: 16 }}>
-          <Empty>
-            <Empty.EmptyMedia>📭</Empty.EmptyMedia>
-            <Empty.EmptyHeader>
-              <Empty.EmptyTitle>{t("noResults")}</Empty.EmptyTitle>
-              <Empty.EmptyDescription>{t("noResultsDescription")}</Empty.EmptyDescription>
-            </Empty.EmptyHeader>
-          </Empty>
-        </div>
-      )}
+        {!loading && !error && hasKey && query.trim() && results.length === 0 && (
+          <div style={{ padding: 16 }}>
+            <Empty>
+              <Empty.EmptyMedia>📭</Empty.EmptyMedia>
+              <Empty.EmptyHeader>
+                <Empty.EmptyTitle>{t("noResults")}</Empty.EmptyTitle>
+                <Empty.EmptyDescription>{t("noResultsDescription")}</Empty.EmptyDescription>
+              </Empty.EmptyHeader>
+            </Empty>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
