@@ -8,6 +8,7 @@ interface ResultListProps {
   selectedIndex: number;
   onSelectIndex: (index: number) => void;
   scrollRef: React.RefObject<HTMLDivElement | null>;
+  shouldScrollRef: React.RefObject<boolean | null>;
   onPlay: (video: YoutubeVideoResult) => void;
   onAddToQueue: (video: YoutubeVideoResult) => void;
   onAddNext: (video: YoutubeVideoResult) => void;
@@ -21,6 +22,7 @@ export function ResultList({
   selectedIndex,
   onSelectIndex,
   scrollRef,
+  shouldScrollRef,
   onPlay,
   onAddToQueue,
   onAddNext,
@@ -38,8 +40,15 @@ export function ResultList({
   });
 
   useEffect(() => {
-    virtualizer.scrollToIndex(selectedIndex, { align: 'start' });
-  }, [selectedIndex, virtualizer]);
+    virtualizer.measure();
+  }, [virtualizer]);
+
+  useEffect(() => {
+    if (shouldScrollRef?.current) {
+      virtualizer.scrollToIndex(selectedIndex, { align: 'auto' });
+      shouldScrollRef.current = false;
+    }
+  }, [selectedIndex, virtualizer, shouldScrollRef]);
 
   if (results.length === 0) return null;
 

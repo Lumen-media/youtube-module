@@ -77,6 +77,7 @@ function YoutubeCommanderInner({
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const shouldScrollRef = useRef(false);
 
   const api = useMemo(() => new YoutubeApi(host.net, prefs), [host.net, prefs]);
   const [debouncedQuery] = useDebounceValue(query, 400);
@@ -204,11 +205,15 @@ function YoutubeCommanderInner({
         return;
       }
 
+      const isInputFocused =
+        document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA';
+
       if (results.length === 0) return;
 
       if (e.key === 'ArrowDown') {
         e.preventDefault();
         e.stopPropagation();
+        shouldScrollRef.current = true;
         setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
         return;
       }
@@ -216,9 +221,12 @@ function YoutubeCommanderInner({
       if (e.key === 'ArrowUp') {
         e.preventDefault();
         e.stopPropagation();
+        shouldScrollRef.current = true;
         setSelectedIndex((prev) => Math.max(prev - 1, 0));
         return;
       }
+
+      if (isInputFocused) return;
 
       const video = results[selectedIndex];
       if (!video) return;
@@ -326,13 +334,13 @@ function YoutubeCommanderInner({
           <ScrollArea
             ref={scrollRef}
             className="h-full max-h-96"
-            viewportClassName="custom-scrollbar"
           >
             <ResultList
               results={results}
               selectedIndex={selectedIndex}
               onSelectIndex={setSelectedIndex}
               scrollRef={scrollRef}
+              shouldScrollRef={shouldScrollRef}
               onPlay={handlePlay}
               onAddToQueue={handleAddToQueue}
               onAddNext={handleAddNext}
