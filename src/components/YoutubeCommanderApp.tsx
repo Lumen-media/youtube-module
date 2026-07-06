@@ -3,7 +3,7 @@ import { Button, Empty } from "@lumen-media/ui"
 import type { LumenHost } from "@lumen-media/module-sdk"
 import type { YoutubeVideoResult, YoutubePreferences, SearchError } from "../youtube-types.js"
 import { YoutubeApi } from "../youtube-api.js"
-import { isYouTubeUrl, parseVideoId, makeVideoUrl } from "../youtube-url.js"
+import { parseVideoId, makeVideoUrl } from "../youtube-url.js"
 import { PreferencesStore } from "../data/preferences.js"
 import { SearchBox } from "./SearchBox.js"
 import { ResultList } from "./ResultList.js"
@@ -27,8 +27,8 @@ export function YoutubeCommanderApp({ host, prefsStore, initialQuery }: YoutubeC
   const [error, setError] = useState<SearchError | null>(null)
   const [prefs, setPrefs] = useState<YoutubePreferences>(prefsStore.get())
 
-  const apiRef = useRef(new YoutubeApi(host.net, prefs))
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
+  const apiRef = useRef<YoutubeApi | null>(null)
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null)
 
   useEffect(() => {
     apiRef.current = new YoutubeApi(host.net, prefs)
@@ -59,7 +59,7 @@ export function YoutubeCommanderApp({ host, prefsStore, initialQuery }: YoutubeC
     setError(null)
 
     try {
-      const page = await apiRef.current.search(q.trim())
+      const page = await apiRef.current!.search(q.trim())
       setResults(page.results)
       setSelectedIndex(0)
     } catch (err: unknown) {
@@ -92,28 +92,25 @@ export function YoutubeCommanderApp({ host, prefsStore, initialQuery }: YoutubeC
   }
 
   const handleAddToQueue = useCallback((video: YoutubeVideoResult) => {
-    try {
-      ;(host.queue as Record<string, unknown>).addUrl?.({ url: video.url, position: "end" })
-    } catch {
-      // API not available yet
+    const q = host.queue as unknown as Record<string, unknown>
+    if (typeof q.addUrl === "function") {
+      q.addUrl({ url: video.url, position: "end" })
     }
     host.ui.notify({ message: t("addedToQueue", { title: video.title }) })
   }, [host])
 
   const handleAddNext = useCallback((video: YoutubeVideoResult) => {
-    try {
-      ;(host.queue as Record<string, unknown>).addUrl?.({ url: video.url, position: "next" })
-    } catch {
-      // API not available yet
+    const q = host.queue as unknown as Record<string, unknown>
+    if (typeof q.addUrl === "function") {
+      q.addUrl({ url: video.url, position: "next" })
     }
     host.ui.notify({ message: t("addedNext", { title: video.title }) })
   }, [host])
 
   const handleAddToLibrary = useCallback((video: YoutubeVideoResult) => {
-    try {
-      ;(host.library as Record<string, unknown>).addUrl?.({ url: video.url })
-    } catch {
-      // API not available yet
+    const lib = host.library as unknown as Record<string, unknown>
+    if (typeof lib.addUrl === "function") {
+      lib.addUrl({ url: video.url })
     }
     host.ui.notify({ message: t("addedToLibrary", { title: video.title }) })
   }, [host])

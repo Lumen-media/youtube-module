@@ -1,114 +1,114 @@
 # YouTube Module Plan
 
-## Objetivo
+## Goal
 
-Criar um modulo do Lumen focado em descobrir videos do YouTube dentro do Commander e mandar esses videos para o fluxo nativo do Lumen: preview, fila, biblioteca e reproducao. O modulo deve usar a SDK publica do Lumen sempre que possivel e deixar qualquer trabalho privilegiado, nativo ou sensivel para APIs do host.
+Create a Lumen module focused on discovering YouTube videos inside the Commander and sending those videos to Lumen's native flow: preview, queue, library, and playback. The module should use the public Lumen SDK whenever possible and leave any privileged, native, or sensitive work to the host APIs.
 
-A primeira versao nao deve tentar ser um clone completo do YouTube. Ela deve resolver bem o caso de uso do Lumen: procurar um video rapidamente durante preparacao/apresentacao e colocar esse video no lugar certo sem sair do app.
+The first version should not try to be a full YouTube clone. It should solve the Lumen use case well: quickly find a video during preparation/presentation and put it in the right place without leaving the app.
 
-## Decisoes iniciais
+## Initial Decisions
 
-- A UI principal sera um Commander app registrado com `host.commands.add({ type: "app" })`.
-- Tambem vale registrar um prefixo `youtube <busca>` para busca rapida direto na paleta.
-- A busca pode usar YouTube Data API v3 no modulo via `host.net`, desde que a chave seja configurada pelo usuario.
-- A chave da API nao deve ser embutida no bundle do modulo.
-- Por padrao, cada cliente/instalacao informa a propria Google API key depois de instalar o modulo.
-- A tela principal precisa ter uma engrenagem de configuracao para editar API key e preferencias sem sair do fluxo do Commander.
-- O modulo deve persistir preferencias simples com `host.data.json` e historico/cache estruturado com `host.data.sqlite` se necessario.
-- Reproducao inicial deve ser por URL do YouTube usando as APIs ja planejadas/implementadas no Lumen: `host.library.addUrl` e `host.queue.addUrl`.
-- Download de video/audio nao entra no MVP do modulo.
-- Se download existir depois, deve morar no Lumen host, provavelmente em Rust/Tauri, exposto por uma API da SDK. O modulo so chamaria essa API.
+- The main UI will be a Commander app registered with `host.commands.add({ type: "app" })`.
+- Also worth registering a `youtube <query>` prefix for quick search directly in the palette.
+- Search can use YouTube Data API v3 in the module via `host.net`, as long as the key is configured by the user.
+- The API key must not be embedded in the module bundle.
+- By default, each client/installation provides their own Google API key after installing the module.
+- The main screen needs a settings gear to edit API key and preferences without leaving the Commander flow.
+- The module should persist simple preferences with `host.data.json` and structured history/cache with `host.data.sqlite` if needed.
+- Initial playback should be via YouTube URL using the already planned/implemented Lumen APIs: `host.library.addUrl` and `host.queue.addUrl`.
+- Video/audio download is not part of the module MVP.
+- If download comes later, it should live in the Lumen host, likely in Rust/Tauri, exposed via an SDK API. The module would only call that API.
 
-## Por que download fica fora do MVP
+## Why Download Stays Out of MVP
 
-A politica oficial de YouTube API Services diz que clientes nao devem baixar, importar, fazer backup, cachear ou armazenar copias de conteudo audiovisual do YouTube sem aprovacao previa do YouTube. Tambem proibe separar/isolar componentes de audio ou video e usar tecnologias fora das APIs do YouTube para recuperar conteudo audiovisual.
+The official YouTube API Services policy states that clients must not download, import, back up, cache, or store copies of YouTube audiovisual content without prior YouTube approval. It also prohibits separating/isolating audio or video components and using technologies outside YouTube's APIs to retrieve audiovisual content.
 
-Implicacao para o Lumen:
+Implications for Lumen:
 
-- `yt-dlp`, scraping, extração de stream e download direto nao devem ser a base publica do modulo.
-- O caminho seguro e reproduzir via player/URL embutivel e deixar o Lumen guardar apenas metadados permitidos e thumbnails conforme a arquitetura existente.
-- Uma feature futura de download precisa ter escopo explicito: conteudo proprio/autorizado, aprovacao, ou outra fonte legalmente permitida. Essa feature deve ser implementada no host, nao no modulo.
+- `yt-dlp`, scraping, stream extraction, and direct download must not be public module foundations.
+- The safe path is to play via embeddable player/URL and let Lumen store only permitted metadata and thumbnails according to the existing architecture.
+- A future download feature needs explicit scope: own/authorized content, approval, or another legally permitted source. This feature should be implemented in the host, not the module.
 
-Fontes oficiais consultadas:
+Official sources consulted:
 
 - YouTube Data API `search.list`: https://developers.google.com/youtube/v3/docs/search/list
 - YouTube Data API `videos.list`: https://developers.google.com/youtube/v3/docs/videos/list
 - YouTube API Services Developer Policies: https://developers.google.com/youtube/terms/developer-policies
 
-## Experiencia do usuario
+## User Experience
 
-### Commander app
+### Commander App
 
-Comando principal:
+Main command:
 
 - `YouTube: Search`
-- Abre uma tela dentro do Commander.
-- Campo de busca no topo.
-- Lista de resultados com thumbnail, titulo, canal, duracao, data e indicadores como live/upcoming quando disponivel.
-- Acoes por resultado:
-  - Play/preview agora
+- Opens a screen inside the Commander.
+- Search field at the top.
+- Result list with thumbnail, title, channel, duration, date, and live/upcoming indicators when available.
+- Actions per result:
+  - Play/preview now
   - Add to queue
   - Add next
   - Add to library
   - Open on YouTube
   - Copy URL
 
-### Prefixo rapido
+### Quick Prefix
 
-Prefixo:
+Prefix:
 
 - `youtube oceans hillsong`
-- `yt oceans hillsong` como alias, se a SDK permitir ou se registrarmos dois prefixos.
+- `yt oceans hillsong` as alias, if the SDK allows it or if we register two prefixes.
 
-Comportamento:
+Behavior:
 
-- Sem query: mostra resultados recentes do historico ou sugestao para configurar API key.
-- Com query: retorna resultados compactos direto na paleta.
-- Enter em um resultado deve adicionar a fila ou abrir uma tela de detalhes, a decidir.
-- Shift/acao secundaria pode virar `Add next` depois que a UI suportar atalhos mais ricos.
+- Without query: show recent history results or suggestion to configure API key.
+- With query: return compact results directly in the palette.
+- Enter on a result should add to queue or open a details screen, to be decided.
+- Shift/secondary action could become `Add next` when the UI supports richer shortcuts.
 
-### Configuracao
+### Settings
 
-Como `host.settings` ainda nao persiste de forma completa, usar `host.data.json` por enquanto.
+Since `host.settings` doesn't persist fully yet, use `host.data.json` for now.
 
-Campos:
+Fields:
 
-- `apiKey`: chave do YouTube Data API v3 do usuario.
-- `regionCode`: padrao `BR` ou vazio para usar comportamento global.
-- `relevanceLanguage`: padrao vindo do locale do app quando fizer sentido.
-- `safeSearch`: `moderate` por padrao.
-- `defaultAction`: `addToQueue` ou `details`.
-- `maxResults`: 10, 25 ou 50.
+- `apiKey`: user's YouTube Data API v3 key.
+- `regionCode`: default `BR` or empty for global behavior.
+- `relevanceLanguage`: default from app locale when it makes sense.
+- `safeSearch`: `moderate` by default.
+- `defaultAction`: `addToQueue` or `details`.
+- `maxResults`: 10, 25, or 50.
 
-A tela deve ter um estado claro para chave ausente, quota excedida, rede offline e erro de permissao da API.
+The screen must have clear states for missing key, exceeded quota, offline network, and API permission errors.
 
-### UI de configuracao
+### Settings UI
 
-A configuracao deve ser acessivel por uma engrenagem visivel no canto superior direito do Commander app do YouTube. Essa engrenagem abre uma view/painel interno de settings do proprio modulo, sem depender inicialmente da tela global de settings do Lumen.
+Settings should be accessible via a gear icon visible in the top-right corner of the YouTube Commander app. The gear opens an internal settings view/panel owned by the module, without depending on the Lumen global settings screen initially.
 
-Requisitos da engrenagem/config:
+Gear/config requirements:
 
-- Aparecer na tela de busca e nos estados de erro/chave ausente.
-- Abrir uma view `SettingsView` com campo de API key, preferencias de busca e acoes de salvar/cancelar.
-- Permitir testar a chave com uma chamada leve antes de salvar, se a quota permitir.
-- Mostrar a chave mascarada depois de salva, com acao explicita para revelar/editar.
-- Explicar que a chave pertence ao cliente/usuario e nao e fornecida pelo Lumen nem pelo modulo.
-- Persistir no MVP com `host.data.json`; migrar para `host.secrets` quando o Lumen tiver esse servico.
+- Appear on the search screen and in error/missing-key states.
+- Open a `SettingsView` with API key field, search preferences, and save/cancel actions.
+- Allow testing the key with a lightweight call before saving, if quota permits.
+- Show the key masked after saving, with an explicit reveal/edit action.
+- Explain that the key belongs to the client/user and is not provided by Lumen or the module.
+- Persist in MVP with `host.data.json`; migrate to `host.secrets` when Lumen has that service.
 
-Estados esperados:
+Expected states:
 
-- Sem chave: mostrar tela vazia com CTA para abrir configuracao.
-- Chave invalida: mostrar erro e atalho para editar configuracao.
-- Quota excedida: mostrar aviso e manter historico/cache disponivel.
-- Offline/falha de rede: mostrar erro recuperavel com retry.
+- No key: show empty screen with CTA to open settings.
+- Invalid key: show error and shortcut to edit settings.
+- Quota exceeded: show warning and keep history/cache available.
+- Offline/network failure: show recoverable error with retry.
 
-## Arquitetura do modulo
+## Module Architecture
 
-Estrutura sugerida:
+Suggested structure:
 
 ```txt
 src/
-  main.ts
+  main.tsx
   youtube-api.ts
   youtube-types.ts
   youtube-url.ts
@@ -123,26 +123,26 @@ src/
     recent-searches.ts
 ```
 
-### `main.ts`
+### `main.tsx`
 
-Responsabilidades:
+Responsibilities:
 
-- Inicializar i18n.
-- Carregar preferencias.
-- Registrar comando app `youtube-module.search`.
-- Registrar prefixo `youtube`.
-- Registrar menu opcional em `Modules > YouTube`.
+- Initialize i18n.
+- Load preferences.
+- Register `youtube-module.search` app command.
+- Register `youtube` prefix.
+- Register optional menu under `Modules > YouTube`.
 
 ### `youtube-api.ts`
 
-Responsabilidades:
+Responsibilities:
 
-- Chamar `search.list` com `part=snippet`, `type=video`, `q`, `maxResults`, `regionCode`, `relevanceLanguage`, `safeSearch` e `pageToken`.
-- Usar `videos.list` para enriquecer os resultados com `contentDetails`, `statistics` e talvez `status`.
-- Normalizar resposta em um modelo interno simples.
-- Tratar erros de quota, key invalida, rede e resposta incompleta.
+- Call `search.list` with `part=snippet`, `type=video`, `q`, `maxResults`, `regionCode`, `relevanceLanguage`, `safeSearch`, and `pageToken`.
+- Use `videos.list` to enrich results with `contentDetails`, `statistics`, and maybe `status`.
+- Normalize response into a simple internal model.
+- Handle quota, invalid key, network, and incomplete response errors.
 
-Modelo interno sugerido:
+Suggested internal model:
 
 ```ts
 type YoutubeVideoResult = {
@@ -163,31 +163,31 @@ type YoutubeVideoResult = {
 
 ### `youtube-url.ts`
 
-Responsabilidades:
+Responsibilities:
 
-- Gerar URL canonica `https://www.youtube.com/watch?v=<videoId>`.
-- Aceitar colagem de URL em vez de busca textual.
-- Extrair video id de `youtube.com/watch`, `youtu.be`, `shorts` e `embed`.
+- Generate canonical URL `https://www.youtube.com/watch?v=<videoId>`.
+- Accept URL pasting instead of text search.
+- Extract video id from `youtube.com/watch`, `youtu.be`, `shorts`, and `embed`.
 
-### Persistencia local
+### Local Persistence
 
 `host.data.json`:
 
-- preferencias e API key.
+- Preferences and API key.
 
-`host.data.sqlite` opcional:
+`host.data.sqlite` (optional):
 
-- historico de buscas.
-- resultados recentes cacheados por poucos dias.
-- videos adicionados recentemente para evitar duplicatas visuais.
+- Search history.
+- Recently cached results for a few days.
+- Recently added videos to avoid visual duplicates.
 
-Nao armazenar copia de video/audio. Cachear apenas metadados necessarios para UX, respeitando as politicas da API.
+Do not store video/audio copies. Cache only metadata needed for UX, respecting API policies.
 
-## Integracao com Lumen
+## Lumen Integration
 
-### APIs existentes/planejadas
+### Existing/Planned APIs
 
-Usar quando disponivel:
+Use when available:
 
 ```ts
 await host.queue.addUrl?.({
@@ -207,24 +207,24 @@ await host.library.addUrl?.({
 })
 ```
 
-Se a versao instalada da SDK ainda nao tipar essas APIs, usar cast temporario e registrar no plano de SDK a adicao definitiva.
+If the installed SDK version doesn't type these APIs yet, use a temporary cast and register the definitive addition in the SDK plan.
 
-### Request via Lumen host
+### Request via Lumen Host
 
-O modulo nao deve depender de `fetch()` direto no renderer como contrato principal. A SDK deve expor uma API generica `host.net.request()`, implementada pelo Lumen em Rust/Tauri, para que o modulo peca um request e receba a resposta normalizada.
+The module should not depend on `fetch()` directly in the renderer as its main contract. The SDK should expose a generic `host.net.request()` API, implemented by Lumen in Rust/Tauri, so the module can make a request and receive a normalized response.
 
-Fluxo desejado:
+Desired flow:
 
 ```txt
 YouTube module
   -> host.net.request({ url, method, query, headers, body })
   -> Tauri command
-  -> Rust valida permissao de rede do modulo
-  -> Rust executa HTTP request
-  -> SDK devolve status, headers e data
+  -> Rust validates module network permission
+  -> Rust executes HTTP request
+  -> SDK returns status, headers, and data
 ```
 
-Exemplo de uso para busca:
+Search usage example:
 
 ```ts
 const search = await host.net.get<YoutubeSearchResponse>(
@@ -242,7 +242,7 @@ const search = await host.net.get<YoutubeSearchResponse>(
 )
 ```
 
-O manifesto do modulo deve declarar permissao de rede apenas para os hosts necessarios:
+The module manifest should declare network permission only for required hosts:
 
 ```json
 {
@@ -254,14 +254,15 @@ O manifesto do modulo deve declarar permissao de rede apenas para os hosts neces
 }
 ```
 
-A arquitetura detalhada fica no repo do Lumen em `docs/architecture/module-net-request-api.md`.
+Detailed architecture is in the Lumen repo at `docs/architecture/module-net-request-api.md`.
 
-Importante: no estado atual, `host.net` existe no host interno do Lumen, mas ainda nao esta exposto na SDK publica `@lumen-media/module-sdk`. Antes do modulo depender disso, a SDK precisa receber `NetAPI` e o Lumen precisa implementar a ponte Rust/Tauri.
+Important: in the current state, `host.net` exists in Lumen's internal host but is not yet exposed in the public `@lumen-media/module-sdk`. Before the module depends on this, the SDK needs to receive `NetAPI` and Lumen needs to implement the Rust/Tauri bridge.
 
-Tarefa obrigatoria antes da implementacao do modulo: atualizar o repo `Lumen-media/module-sdk` com os tipos `NetAPI`/`NetRequest`/`NetResponse`, adicionar `net` em `LumenHost`, adicionar `permissions.network` no schema do manifest e publicar/consumir uma nova versao da SDK.
+Mandatory task before module implementation: update the `Lumen-media/module-sdk` repo with `NetAPI`/`NetRequest`/`NetResponse` types, add `net` to `LumenHost`, add `permissions.network` to the manifest schema, and publish/consume a new SDK version.
 
-### APIs que talvez precisem nascer no Lumen
-Para uma experiencia completa, o host pode precisar expor:
+### APIs That May Need to Be Created in Lumen
+
+For a complete experience, the host may need to expose:
 
 ```ts
 host.youtube.search?(input): Promise<YoutubeSearchPage>
@@ -271,90 +272,89 @@ host.library.addUrl?(input): Promise<LibraryItem>
 host.queue.addUrl?(input): Promise<void>
 ```
 
-A decisao inicial para credenciais e:
+The initial credential decision is:
 
-1. O modulo nao traz chave propria e nao usa chaves do desenvolvedor por padrao.
-2. Cada cliente/usuario configura a propria Google API key apos instalar o modulo.
-3. O MVP salva a chave com `host.data.json`, com UI clara de configuracao.
-4. Quando existir `host.secrets`, migrar a chave para armazenamento seguro do Lumen.
-5. A camada `youtube-api.ts` deve ficar isolada para permitir trocar `host.net` por `host.youtube.search` no futuro, se o Lumen ganhar um servico especifico.
+1. The module does not ship its own key and does not use developer keys by default.
+2. Each client/user configures their own Google API key after installing the module.
+3. MVP saves the key with `host.data.json`, with clear configuration UI.
+4. When `host.secrets` exists, migrate the key to secure Lumen storage.
+5. The `youtube-api.ts` layer should be isolated to allow swapping `host.net` for `host.youtube.search` in the future, if Lumen gains a specific service.
 
-## Plano por fases
+## Phase Plan
 
-### Fase 0 - Alinhar contrato
+### Phase 0 - Align Contract
 
-- Confirmar se o foco e busca para apresentacao/culto/evento, e nao consumo geral.
-- Confirmar acao padrao do Enter: adicionar a fila, adicionar proximo ou abrir detalhes.
-- Confirmar se playlists entram no primeiro ciclo ou ficam para depois.
-- Atualizar SDK/app se `host.queue.addUrl` e `host.library.addUrl` ainda estiverem parciais.
+- Confirm focus is search for presentation/worship/event, not general consumption.
+- Confirm default Enter action: add to queue, add next, or open details.
+- Confirm whether playlists are in the first cycle or left for later.
+- Update SDK/app if `host.queue.addUrl` and `host.library.addUrl` are still partial.
 
-### Fase 1 - MVP funcional
+### Phase 1 - Functional MVP
 
-- Tela Commander app com busca manual.
-- Configuracao da API key por engrenagem dentro do Commander app.
-- Chamada `search.list` + `videos.list`.
-- Renderizacao de resultados com thumbnail e metadados principais.
-- Acoes: add to queue, add next, add to library, open external/copy URL.
-- Estados de loading, empty, erro e quota.
+- Commander app screen with manual search.
+- API key configuration via gear inside the Commander app.
+- `search.list` + `videos.list` calls.
+- Result rendering with thumbnail and key metadata.
+- Actions: add to queue, add next, add to library, open external/copy URL.
+- Loading, empty, error, and quota states.
 
-### Fase 2 - Fluxo rapido
+### Phase 2 - Quick Flow
 
-- Prefixo `youtube`/`yt` na command palette.
-- Historico de buscas recentes.
-- Cache curto de resultados para evitar gastar quota enquanto digita e volta.
-- Debounce e cancelamento de requests.
-- Colar URL direto no campo para resolver/adicionar video sem chamar search.
+- `youtube`/`yt` prefix in the command palette.
+- Recent search history.
+- Short result cache to avoid spending quota while typing and browsing.
+- Debounce and request cancellation.
+- Paste URL directly in the field to resolve/add video without calling search.
 
-### Fase 3 - UX de producao
+### Phase 3 - Production UX
 
-- Detalhes do video antes de adicionar.
-- Filtros: duracao, order, live/upcoming, region/language.
-- Indicador se video ja esta na fila/biblioteca.
-- Melhor tratamento de videos indisponiveis/nao embeddable quando a API/host conseguir detectar.
-- i18n completo pt-BR/en.
+- Video details before adding.
+- Filters: duration, order, live/upcoming, region/language.
+- Indicator if video is already in the queue/library.
+- Better handling of unavailable/non-embeddable videos when the API/host can detect them.
+- Full i18n pt-BR/en.
 
-### Fase 4 - Host services
+### Phase 4 - Host Services
 
-- Mover credenciais sensiveis para uma API de secrets do host, se existir.
-- Considerar `host.youtube.search` para centralizar quota, cache e erros.
-- Expor `host.media.previewUrl` se preview direto ficar importante.
-- Fortalecer `host.library.addUrl` para retornar item criado e metadados.
+- Move sensitive credentials to a host secrets API if it exists.
+- Consider `host.youtube.search` to centralize quota, cache, and errors.
+- Expose `host.media.previewUrl` if direct preview becomes important.
+- Strengthen `host.library.addUrl` to return created item and metadata.
 
-### Fase 5 - Download, se for viavel
+### Phase 5 - Download (If Feasible)
 
-So seguir esta fase se houver uma base legal e tecnica clara.
+Only proceed if there is a clear legal and technical basis.
 
-- Definir escopo permitido: conteudo proprio, autorizado, ou aprovacao previa do YouTube.
-- Implementar no Lumen host, nao no modulo.
-- Expor API de SDK pequena, por exemplo `host.media.downloadUrl`, com status/progresso/cancelamento.
-- Persistir status no modelo de URL media ja planejado pelo Lumen.
-- Nunca depender de binario externo dentro do modulo.
-- Documentar claramente limites, erros e responsabilidades do usuario.
+- Define permitted scope: own content, authorized content, or prior YouTube approval.
+- Implement in the Lumen host, not the module.
+- Expose a small SDK API, e.g., `host.media.downloadUrl`, with status/progress/cancellation.
+- Persist status in the URL media model already planned by Lumen.
+- Never depend on external binaries inside the module.
+- Clearly document limits, errors, and user responsibilities.
 
-## Riscos e cuidados
+## Risks and Caveats
 
-- Quota: `search.list` custa caro o bastante para exigir debounce, cache e paginacao cuidadosa. `videos.list` deve buscar detalhes em lote por ids.
-- API key: nao embutir segredo no codigo. O cliente/usuario deve informar a propria chave; depois, migrar para `host.secrets` quando existir.
-- Networking: usar `host.net.request` Rust-backed quando disponivel, com permissao de rede no manifesto. Evitar depender de `fetch()` direto como contrato permanente.
-- Politicas do YouTube: evitar qualquer download/offline playback sem base explicita.
-- UX: resultados da API nao sao necessariamente identicos ao site do YouTube. A busca deve parecer familiar, mas nao prometer paridade perfeita.
-- SDK parcial: algumas APIs de library/queue por URL podem estar opcionais; o modulo deve degradar com mensagem clara.
+- Quota: `search.list` is expensive enough to require careful debounce, cache, and pagination. `videos.list` should batch fetch details by IDs.
+- API key: don't embed secrets in code. The client/user must provide their own key; later migrate to `host.secrets` when it exists.
+- Networking: use Rust-backed `host.net.request` when available, with network permission in the manifest. Avoid depending on `fetch()` directly as a permanent contract.
+- YouTube policies: avoid any download/offline playback without explicit basis.
+- UX: API results are not necessarily identical to the YouTube website. The search should feel familiar but not promise perfect parity.
+- Partial SDK: some library/queue by URL APIs may be optional; the module should degrade gracefully with a clear message.
 
-## Primeiro pacote de implementacao sugerido
+## Suggested First Implementation Package
 
-1. Renomear/ajustar manifest para identidade real do modulo.
-2. Criar camada `youtube-api.ts` com tipos e normalizacao.
-3. Criar `YoutubeCommanderApp` com campo de busca e lista.
-4. Persistir API key/preferencias em `host.data.json` e expor configuracao por engrenagem no Commander app.
-5. Integrar acoes com `host.queue.addUrl` e `host.library.addUrl`.
-6. Adicionar prefixo `youtube` para busca rapida.
-7. Validar build/pack do modulo.
+1. Rename/adjust manifest for the module's real identity.
+2. Create `youtube-api.ts` layer with types and normalization.
+3. Create `YoutubeCommanderApp` with search field and list.
+4. Persist API key/preferences in `host.data.json` and expose configuration via gear in the Commander app.
+5. Integrate actions with `host.queue.addUrl` and `host.library.addUrl`.
+6. Add `youtube` prefix for quick search.
+7. Validate module build/pack.
 
-## Perguntas em aberto
+## Open Questions
 
-- O Enter no resultado deve tocar agora, adicionar no fim da fila, adicionar como proximo, ou abrir detalhes?
-- O modulo deve aceitar playlists no MVP ou apenas videos individuais?
-- Quando `host.secrets` existir, qual sera o fluxo de migracao da API key salva em `host.data.json`?
-- O Lumen deve ter uma tela central de credenciais/servicos conectados para modulos?
-- Download e realmente requisito de produto, ou a necessidade principal e deixar videos prontos na fila com reproducao online?
-
+- Should Enter on a result play now, add to end of queue, add as next, or open details?
+- Should the module accept playlists in MVP or only individual videos?
+- When `host.secrets` exists, what will the migration flow be for the API key saved in `host.data.json`?
+- Should Lumen have a central credentials/connected services screen for modules?
+- Is download actually a product requirement, or is the main need to have videos ready in the queue with online playback?
