@@ -73,6 +73,11 @@ function YoutubeCommanderInner({
   const [view, setView] = useState<ViewState>('search');
   const query = commanderQuery ?? '';
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const selectedIndexRef = useRef(selectedIndex);
+  const handleSelectIndex = useCallback((index: number) => {
+    selectedIndexRef.current = index;
+    setSelectedIndex(index);
+  }, []);
   const [prefs, setPrefs] = useState<YoutubePreferences>(prefsStore.get());
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -91,7 +96,7 @@ function YoutubeCommanderInner({
 
   useEffect(() => {
     if (isOffline) return;
-    setSelectedIndex(0);
+    handleSelectIndex(0);
   }, [debouncedQuery, isOffline]);
 
   useEffect(() => {
@@ -133,12 +138,7 @@ function YoutubeCommanderInner({
 
   const handlePlay = useCallback(
     (video: YoutubeVideoResult) => {
-      const q = host.queue as unknown as Record<string, unknown>;
-      if (typeof q.addUrl === 'function') {
-        q.addUrl({ url: video.url, position: 'next' });
-      }
-      host.queue.next();
-      host.ui.notify({ message: t('playingVideo', { title: video.title }) });
+      host.player.play(video.url);
     },
     [host]
   );
@@ -180,14 +180,28 @@ function YoutubeCommanderInner({
     window.open(video.url, '_blank');
   }, []);
 
-  const handleCopyUrl = useCallback(async (video: YoutubeVideoResult) => {
-    try {
-      await navigator.clipboard.writeText(video.url);
-      host.ui.notify({ message: t('copiedUrl') });
-    } catch {
-      host.ui.notify({ message: t('copyFailed'), level: 'error' });
-    }
-  }, [host]);
+  const handleCopyUrl = useCallback(
+    async (video: YoutubeVideoResult) => {
+      try {
+        await navigator.clipboard.writeText(video.url);
+        host.ui.notify({ message: t('copiedUrl') });
+      } catch {
+        host.ui.notify({ message: t('copyFailed'), level: 'error' });
+      }
+    },
+    [host]
+  );
+
+  const handlePrimaryAction = useCallback(
+    (video: YoutubeVideoResult) => {
+      if (prefs.defaultAction === 'addToQueue') {
+        handleAddToQueue(video);
+      } else {
+        handlePlay(video);
+      }
+    },
+    [prefs.defaultAction, handleAddToQueue, handlePlay]
+  );
 
   const handleKeyDownRef = useRef<(e: KeyboardEvent) => void>(() => {});
   handleKeyDownRef.current = (e: KeyboardEvent) => {
@@ -206,16 +220,13 @@ function YoutubeCommanderInner({
       return;
     }
 
-    const isInputFocused =
-      document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA';
-
     if (results.length === 0) return;
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       e.stopPropagation();
       shouldScrollRef.current = true;
-      setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
+      handleSelectIndex(Math.min(selectedIndexRef.current + 1, results.length - 1));
       return;
     }
 
@@ -223,13 +234,14 @@ function YoutubeCommanderInner({
       e.preventDefault();
       e.stopPropagation();
       shouldScrollRef.current = true;
-      setSelectedIndex((prev) => Math.max(prev - 1, 0));
+      handleSelectIndex(Math.max(selectedIndexRef.current - 1, 0));
       return;
     }
 
-    if (isInputFocused) return;
+    const isInputFocused =
+      document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA';
 
-    const video = results[selectedIndex];
+    const video = results[selectedIndexRef.current];
     if (!video) return;
 
     if (e.key === 'Enter') {
@@ -240,10 +252,12 @@ function YoutubeCommanderInner({
       } else if (e.ctrlKey || e.metaKey) {
         handleAddToLibrary(video);
       } else {
-        handlePlay(video);
+        handlePrimaryAction(video);
       }
       return;
     }
+
+    if (isInputFocused) return;
 
     if (e.key === 'q' || e.key === 'Q') {
       e.preventDefault();
@@ -281,12 +295,9 @@ function YoutubeCommanderInner({
     }
   };
 
-  useEventListener(
-    'keydown',
-    (e: KeyboardEvent) => handleKeyDownRef.current(e),
-    undefined,
-    { capture: true }
-  );
+  useEventListener('keydown', (e: KeyboardEvent) => handleKeyDownRef.current(e), undefined, {
+    capture: true,
+  });
 
   const handleSavePrefs = async (newPrefs: YoutubePreferences) => {
     const saved = await prefsStore.save(newPrefs);
@@ -310,7 +321,7 @@ function YoutubeCommanderInner({
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 overflow-hidden">
         {isOffline && (
           <div className="p-4">
             <Empty>
@@ -344,9 +355,10 @@ function YoutubeCommanderInner({
             <ResultList
               results={results}
               selectedIndex={selectedIndex}
-              onSelectIndex={setSelectedIndex}
+              onSelectIndex={handleSelectIndex}
               scrollRef={scrollRef}
               shouldScrollRef={shouldScrollRef}
+              onPrimaryAction={handlePrimaryAction}
               onPlay={handlePlay}
               onAddToQueue={handleAddToQueue}
               onAddNext={handleAddNext}

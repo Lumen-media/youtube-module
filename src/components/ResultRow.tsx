@@ -7,6 +7,7 @@ interface ResultRowProps {
   video: YoutubeVideoResult;
   selected: boolean;
   onSelect: () => void;
+  onPrimaryAction: () => void;
   onPlay: () => void;
   onAddToQueue: () => void;
   onAddNext: () => void;
@@ -45,6 +46,7 @@ export function ResultRow({
   video,
   selected,
   onSelect,
+  onPrimaryAction,
   onPlay,
   onAddToQueue,
   onAddNext,
@@ -56,6 +58,7 @@ export function ResultRow({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      e.stopPropagation();
       if (e.shiftKey) {
         onAddToQueue();
       } else if (e.ctrlKey || e.metaKey) {
@@ -68,30 +71,35 @@ export function ResultRow({
 
     if (e.key === 'o' && !e.ctrlKey && !e.metaKey) {
       e.preventDefault();
+      e.stopPropagation();
       onOpenExternal();
       return;
     }
 
     if (e.key === 'y' && !e.ctrlKey && !e.metaKey) {
       e.preventDefault();
+      e.stopPropagation();
       onCopyUrl();
       return;
     }
 
     if (e.key === 'q' && !e.ctrlKey && !e.metaKey) {
       e.preventDefault();
+      e.stopPropagation();
       onAddToQueue();
       return;
     }
 
     if (e.key === 'n' && !e.ctrlKey && !e.metaKey) {
       e.preventDefault();
+      e.stopPropagation();
       onAddNext();
       return;
     }
 
     if (e.key === 'l' && !e.ctrlKey && !e.metaKey) {
       e.preventDefault();
+      e.stopPropagation();
       onAddToLibrary();
       return;
     }
@@ -103,9 +111,9 @@ export function ResultRow({
       aria-selected={selected}
       tabIndex={-1}
       className={`${baseClasses} ${selected ? selectedClasses : ''}`}
-      onClick={onPlay}
+      onClick={onPrimaryAction}
       onMouseEnter={onSelect}
-      onDoubleClick={onPlay}
+      onDoubleClick={onPrimaryAction}
       onKeyDown={handleKeyDown}
       data-index={index}
     >
@@ -116,6 +124,7 @@ export function ResultRow({
             alt={video.title}
             className="w-40 aspect-video rounded object-cover shrink-0 bg-muted"
             loading="lazy"
+            referrerPolicy="no-referrer"
           />
         ) : (
           <div className="w-40 aspect-video rounded object-cover shrink-0 bg-muted flex items-center justify-center text-muted-foreground">
@@ -151,7 +160,10 @@ export function ResultRow({
           {video.viewCount != null && (
             <span>{t('views', { count: formatViewCount(video.viewCount) })}</span>
           )}
-          {(() => { const ago = timeAgo(video.publishedAt); return ago ? <span>{ago}</span> : null; })()}
+          {(() => {
+            const ago = timeAgo(video.publishedAt);
+            return ago ? <span>{ago}</span> : null;
+          })()}
         </div>
         {selected && (
           <div className="text-xs text-muted-foreground flex gap-1.5 mt-1 flex-wrap">

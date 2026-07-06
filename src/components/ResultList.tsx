@@ -9,6 +9,7 @@ interface ResultListProps {
   onSelectIndex: (index: number) => void;
   scrollRef: React.RefObject<HTMLDivElement | null>;
   shouldScrollRef: React.RefObject<boolean | null>;
+  onPrimaryAction: (video: YoutubeVideoResult) => void;
   onPlay: (video: YoutubeVideoResult) => void;
   onAddToQueue: (video: YoutubeVideoResult) => void;
   onAddNext: (video: YoutubeVideoResult) => void;
@@ -23,6 +24,7 @@ export function ResultList({
   onSelectIndex,
   scrollRef,
   shouldScrollRef,
+  onPrimaryAction,
   onPlay,
   onAddToQueue,
   onAddNext,
@@ -78,6 +80,7 @@ export function ResultList({
               video={video}
               selected={virtualItem.index === selectedIndex}
               onSelect={() => onSelectIndex(virtualItem.index)}
+              onPrimaryAction={() => onPrimaryAction(video)}
               onPlay={() => onPlay(video)}
               onAddToQueue={() => onAddToQueue(video)}
               onAddNext={() => onAddNext(video)}
