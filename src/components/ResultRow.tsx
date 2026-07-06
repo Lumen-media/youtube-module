@@ -123,17 +123,17 @@ export function ResultRow({
           </div>
         )}
         {video.durationSeconds != null && video.durationSeconds > 0 && (
-          <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[11px] px-1 py-px rounded-sm font-semibold">
+          <span className="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1 py-px rounded-sm font-semibold">
             {formatDuration(video.durationSeconds)}
           </span>
         )}
         {video.liveBroadcastContent === 'live' && (
-          <span className="absolute top-1 left-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-px rounded-sm uppercase">
+          <span className="absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-px rounded-sm uppercase">
             LIVE
           </span>
         )}
         {video.liveBroadcastContent === 'upcoming' && (
-          <span className="absolute top-1 left-1 bg-primary text-white text-[10px] font-bold px-1.5 py-px rounded-sm uppercase">
+          <span className="absolute top-1 left-1 bg-primary text-white text-xs font-bold px-1.5 py-px rounded-sm uppercase">
             UPCOMING
           </span>
         )}
@@ -147,14 +147,14 @@ export function ResultRow({
           {video.title}
         </div>
         <div className="text-xs text-muted-foreground mt-0.5">{video.channelTitle}</div>
-        <div className="text-[11px] text-muted-foreground flex gap-2 mt-0.5">
+        <div className="text-xs text-muted-foreground flex gap-2 mt-0.5">
           {video.viewCount != null && (
             <span>{t('views', { count: formatViewCount(video.viewCount) })}</span>
           )}
-          {timeAgo(video.publishedAt) && <span>{timeAgo(video.publishedAt)}</span>}
+          {(() => { const ago = timeAgo(video.publishedAt); return ago ? <span>{ago}</span> : null; })()}
         </div>
         {selected && (
-          <div className="text-[11px] text-muted-foreground flex gap-1.5 mt-1 flex-wrap">
+          <div className="text-xs text-muted-foreground flex gap-1.5 mt-1 flex-wrap">
             <span>
               <Kbd>↵</Kbd> {t('playAction')}
             </span>

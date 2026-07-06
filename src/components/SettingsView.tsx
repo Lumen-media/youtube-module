@@ -59,7 +59,7 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
         {apiKey && !visible && (
           <span className="text-xs text-muted-foreground font-mono">{maskedKey}</span>
         )}
-        <p className="text-[11px] text-muted-foreground mt-0.5 mb-0">{t('apiKeyHint')}</p>
+        <p className="text-xs text-muted-foreground mt-0.5 mb-0">{t('apiKeyHint')}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">

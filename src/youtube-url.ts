@@ -6,10 +6,6 @@ export function parseVideoId(input: string): string | null {
   return match?.[1] ?? null;
 }
 
-export function isYouTubeUrl(input: string): boolean {
-  return VIDEO_ID_REGEX.test(input);
-}
-
 export function makeVideoUrl(videoId: string): string {
   return `https://www.youtube.com/watch?v=${videoId}`;
 }

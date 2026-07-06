@@ -34,7 +34,7 @@ export function ResultList({
     count: results.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => 110,
-    overscan: 5,
+    overscan: 3,
     measureElement: (el) => el.getBoundingClientRect().height,
     getItemKey: (index) => results[index]?.url ?? index,
   });

@@ -90,7 +90,6 @@ function YoutubeCommanderInner({
   const results = searchResult.results;
 
   useEffect(() => {
-    void debouncedQuery;
     if (isOffline) return;
     setSelectedIndex(0);
   }, [debouncedQuery, isOffline]);
@@ -132,14 +131,17 @@ function YoutubeCommanderInner({
     return () => observer.disconnect();
   }, [searchResult.hasNextPage, searchResult.fetchNextPage]);
 
-  const handlePlay = (video: YoutubeVideoResult) => {
-    const q = host.queue as unknown as Record<string, unknown>;
-    if (typeof q.addUrl === 'function') {
-      q.addUrl({ url: video.url, position: 'next' });
-    }
-    host.queue.next();
-    host.ui.notify({ message: t('playingVideo', { title: video.title }) });
-  };
+  const handlePlay = useCallback(
+    (video: YoutubeVideoResult) => {
+      const q = host.queue as unknown as Record<string, unknown>;
+      if (typeof q.addUrl === 'function') {
+        q.addUrl({ url: video.url, position: 'next' });
+      }
+      host.queue.next();
+      host.ui.notify({ message: t('playingVideo', { title: video.title }) });
+    },
+    [host]
+  );
 
   const handleAddToQueue = useCallback(
     (video: YoutubeVideoResult) => {
@@ -174,111 +176,114 @@ function YoutubeCommanderInner({
     [host]
   );
 
-  const handleOpenExternal = (video: YoutubeVideoResult) => {
+  const handleOpenExternal = useCallback((video: YoutubeVideoResult) => {
     window.open(video.url, '_blank');
-  };
+  }, []);
 
-  const handleCopyUrl = async (video: YoutubeVideoResult) => {
+  const handleCopyUrl = useCallback(async (video: YoutubeVideoResult) => {
     try {
       await navigator.clipboard.writeText(video.url);
       host.ui.notify({ message: t('copiedUrl') });
     } catch {
       host.ui.notify({ message: t('copyFailed'), level: 'error' });
     }
+  }, [host]);
+
+  const handleKeyDownRef = useRef<(e: KeyboardEvent) => void>(() => {});
+  handleKeyDownRef.current = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') {
+        (document.activeElement as HTMLElement).blur();
+        e.stopPropagation();
+        return;
+      }
+      if (view === 'settings') {
+        e.stopPropagation();
+        setView('search');
+        return;
+      }
+      return;
+    }
+
+    const isInputFocused =
+      document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA';
+
+    if (results.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      e.stopPropagation();
+      shouldScrollRef.current = true;
+      setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
+      return;
+    }
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      e.stopPropagation();
+      shouldScrollRef.current = true;
+      setSelectedIndex((prev) => Math.max(prev - 1, 0));
+      return;
+    }
+
+    if (isInputFocused) return;
+
+    const video = results[selectedIndex];
+    if (!video) return;
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.shiftKey) {
+        handleAddToQueue(video);
+      } else if (e.ctrlKey || e.metaKey) {
+        handleAddToLibrary(video);
+      } else {
+        handlePlay(video);
+      }
+      return;
+    }
+
+    if (e.key === 'q' || e.key === 'Q') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleAddToQueue(video);
+      return;
+    }
+
+    if (e.key === 'n' || e.key === 'N') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleAddNext(video);
+      return;
+    }
+
+    if (e.key === 'l' || e.key === 'L') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleAddToLibrary(video);
+      return;
+    }
+
+    if (e.key === 'o' || e.key === 'O') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleOpenExternal(video);
+      return;
+    }
+
+    if (e.key === 'y' || e.key === 'Y') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleCopyUrl(video);
+      return;
+    }
   };
 
   useEventListener(
     'keydown',
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        const tag = document.activeElement?.tagName;
-        if (tag === 'INPUT' || tag === 'TEXTAREA') {
-          (document.activeElement as HTMLElement).blur();
-          e.stopPropagation();
-          return;
-        }
-        if (view === 'settings') {
-          e.stopPropagation();
-          setView('search');
-          return;
-        }
-        return;
-      }
-
-      const isInputFocused =
-        document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA';
-
-      if (results.length === 0) return;
-
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        e.stopPropagation();
-        shouldScrollRef.current = true;
-        setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
-        return;
-      }
-
-      if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        e.stopPropagation();
-        shouldScrollRef.current = true;
-        setSelectedIndex((prev) => Math.max(prev - 1, 0));
-        return;
-      }
-
-      if (isInputFocused) return;
-
-      const video = results[selectedIndex];
-      if (!video) return;
-
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.shiftKey) {
-          handleAddToQueue(video);
-        } else if (e.ctrlKey || e.metaKey) {
-          handleAddToLibrary(video);
-        } else {
-          handlePlay(video);
-        }
-        return;
-      }
-
-      if (e.key === 'q' || e.key === 'Q') {
-        e.preventDefault();
-        e.stopPropagation();
-        handleAddToQueue(video);
-        return;
-      }
-
-      if (e.key === 'n' || e.key === 'N') {
-        e.preventDefault();
-        e.stopPropagation();
-        handleAddNext(video);
-        return;
-      }
-
-      if (e.key === 'l' || e.key === 'L') {
-        e.preventDefault();
-        e.stopPropagation();
-        handleAddToLibrary(video);
-        return;
-      }
-
-      if (e.key === 'o' || e.key === 'O') {
-        e.preventDefault();
-        e.stopPropagation();
-        handleOpenExternal(video);
-        return;
-      }
-
-      if (e.key === 'y' || e.key === 'Y') {
-        e.preventDefault();
-        e.stopPropagation();
-        handleCopyUrl(video);
-        return;
-      }
-    },
+    (e: KeyboardEvent) => handleKeyDownRef.current(e),
     undefined,
     { capture: true }
   );
@@ -334,6 +339,7 @@ function YoutubeCommanderInner({
           <ScrollArea
             ref={scrollRef}
             className="h-full max-h-96"
+            viewportClassName="custom-scrollbar"
           >
             <ResultList
               results={results}
