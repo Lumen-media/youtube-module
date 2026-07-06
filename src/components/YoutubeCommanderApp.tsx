@@ -7,6 +7,7 @@ import { ScrollArea } from '@lumen-media/module-sdk/ui';
 import { Button, Empty } from '@lumen-media/ui';
 import { BarChart3, Globe, Inbox, Key, Search, Settings, TriangleAlert, Video } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useDebounceValue } from 'usehooks-ts';
 import type { PreferencesStore } from '../data/preferences.js';
 import { t } from '../i18n.js';
 import { YoutubeApi } from '../youtube-api.js';
@@ -39,7 +40,7 @@ export function YoutubeCommanderApp({
   const [prefs, setPrefs] = useState<YoutubePreferences>(prefsStore.get());
 
   const apiRef = useRef<YoutubeApi | null>(null);
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const [debouncedQuery] = useDebounceValue(query, 300);
 
   useEffect(() => {
     apiRef.current = new YoutubeApi(host.net, prefs);
@@ -102,14 +103,8 @@ export function YoutubeCommanderApp({
   }, []);
 
   useEffect(() => {
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    searchTimeoutRef.current = setTimeout(() => {
-      doSearch(query);
-    }, 300);
-    return () => {
-      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    };
-  }, [query, doSearch]);
+    doSearch(debouncedQuery);
+  }, [debouncedQuery, doSearch]);
 
   const handlePlay = (video: YoutubeVideoResult) => {
     host.ui.notify({ message: t('playingVideo', { title: video.title }) });
@@ -216,7 +211,7 @@ export function YoutubeCommanderApp({
         )}
 
         {!loading && !error && results.length > 0 && (
-          <ScrollArea viewportClassName="flex flex-col max-h-[400px] focus-visible:ring-0 focus-visible:outline-none">
+          <ScrollArea className="flex flex-col max-h-[400px] focus-visible:ring-0 focus-visible:outline-none">
             <ResultList
               results={results}
               selectedIndex={selectedIndex}

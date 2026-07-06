@@ -114,11 +114,11 @@ export function ResultRow({
           <img
             src={video.thumbnailUrl}
             alt={video.title}
-            className="w-16 aspect-video rounded object-cover shrink-0 bg-muted"
+            className="w-40 aspect-video rounded object-cover shrink-0 bg-muted"
             loading="lazy"
           />
         ) : (
-          <div className="w-16 aspect-video rounded object-cover shrink-0 bg-muted flex items-center justify-center text-muted-foreground">
+          <div className="w-40 aspect-video rounded object-cover shrink-0 bg-muted flex items-center justify-center text-muted-foreground">
             <Video size={20} aria-hidden="true" />
           </div>
         )}
@@ -141,7 +141,7 @@ export function ResultRow({
 
       <div className="flex-1 min-w-0 flex flex-col gap-0.5 justify-center">
         <div
-          className="font-semibold text-sm leading-tight line-clamp-2 text-foreground"
+          className="font-semibold text-sm leading-tight line-clamp-1 text-ellipsis text-foreground"
           title={video.title}
         >
           {video.title}
