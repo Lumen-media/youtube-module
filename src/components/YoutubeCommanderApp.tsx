@@ -16,7 +16,7 @@ import {
   Video,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useDebounceValue } from 'usehooks-ts';
+import { useDebounceValue, useEventListener } from 'usehooks-ts';
 import type { PreferencesStore } from '../data/preferences.js';
 import { t } from '../i18n.js';
 import { YoutubeApi } from '../youtube-api.js';
@@ -172,6 +172,11 @@ export function YoutubeCommanderApp({
       if (tag === 'INPUT' || tag === 'TEXTAREA') {
         (document.activeElement as HTMLElement).blur();
         e.stopPropagation();
+        return;
+      }
+      if (view === 'settings') {
+        e.stopPropagation();
+        setView('search');
         return;
       }
       return;
