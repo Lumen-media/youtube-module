@@ -321,7 +321,7 @@ function YoutubeCommanderInner({
         )}
 
         {!isOffline && !searchResult.isLoading && !searchResult.error && results.length > 0 && (
-          <ScrollArea className="flex flex-col flex-1 min-h-0 focus-visible:ring-0 focus-visible:outline-none">
+          <ScrollArea className="flex flex-col max-h-[400px] focus-visible:ring-0 focus-visible:outline-none">
             <ResultList
               results={results}
               selectedIndex={selectedIndex}
