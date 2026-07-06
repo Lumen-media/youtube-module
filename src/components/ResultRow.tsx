@@ -114,26 +114,26 @@ export function ResultRow({
           <img
             src={video.thumbnailUrl}
             alt={video.title}
-            className="w-[120px] h-[68px] rounded object-cover shrink-0 bg-muted"
+            className="w-16 aspect-video rounded object-cover shrink-0 bg-muted"
             loading="lazy"
           />
         ) : (
-          <div className="w-[120px] h-[68px] rounded object-cover shrink-0 bg-muted flex items-center justify-center text-muted-foreground">
+          <div className="w-16 aspect-video rounded object-cover shrink-0 bg-muted flex items-center justify-center text-muted-foreground">
             <Video size={20} aria-hidden="true" />
           </div>
         )}
         {video.durationSeconds != null && video.durationSeconds > 0 && (
-          <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[11px] px-1 py-[1px] rounded-sm font-semibold">
+          <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[11px] px-1 py-px rounded-sm font-semibold">
             {formatDuration(video.durationSeconds)}
           </span>
         )}
         {video.liveBroadcastContent === 'live' && (
-          <span className="absolute top-1 left-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-[1px] rounded-sm uppercase">
+          <span className="absolute top-1 left-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-px rounded-sm uppercase">
             LIVE
           </span>
         )}
         {video.liveBroadcastContent === 'upcoming' && (
-          <span className="absolute top-1 left-1 bg-primary text-white text-[10px] font-bold px-1.5 py-[1px] rounded-sm uppercase">
+          <span className="absolute top-1 left-1 bg-primary text-white text-[10px] font-bold px-1.5 py-px rounded-sm uppercase">
             UPCOMING
           </span>
         )}

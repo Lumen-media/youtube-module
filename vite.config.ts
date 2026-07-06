@@ -1,13 +1,17 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from "@tailwindcss/postcss";
 import { defineConfig } from "vite";
 
 const HOST_EXTERNALS = ["react", "react-dom", "@lumen-media/ui", "@lumen-media/module-sdk"];
 
 export default defineConfig({
+  css: {
+    postcss: {
+      plugins: [tailwindcss()],
+    },
+  },
   plugins: [
-    tailwindcss(),
     {
       name: "lumen-module-assets",
       closeBundle() {
@@ -31,6 +35,7 @@ export default defineConfig({
       entry: resolve(process.cwd(), "src/main.tsx"),
       formats: ["es"],
       fileName: () => "main.js",
+
     },
     rollupOptions: {
       external: (id: string) =>

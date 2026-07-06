@@ -3,6 +3,7 @@ import type {
   CommanderSearchTrailingComponent,
   LumenHost,
 } from '@lumen-media/module-sdk';
+import { ScrollArea } from '@lumen-media/module-sdk/ui';
 import { Button, Empty } from '@lumen-media/ui';
 import { BarChart3, Globe, Inbox, Key, Search, Settings, TriangleAlert, Video } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -205,7 +206,7 @@ export function YoutubeCommanderApp({
       onKeyDown={handleKeyDown}
       tabIndex={-1}
     >
-      <div className="flex-1 overflow-auto min-h-0">
+      <div className="flex-1 min-h-0">
         {loading && <div className="p-4 text-center text-muted-foreground">{t('searching')}</div>}
 
         {error && !loading && (
@@ -215,17 +216,19 @@ export function YoutubeCommanderApp({
         )}
 
         {!loading && !error && results.length > 0 && (
-          <ResultList
-            results={results}
-            selectedIndex={selectedIndex}
-            onSelectIndex={setSelectedIndex}
-            onPlay={handlePlay}
-            onAddToQueue={handleAddToQueue}
-            onAddNext={handleAddNext}
-            onAddToLibrary={handleAddToLibrary}
-            onOpenExternal={handleOpenExternal}
-            onCopyUrl={handleCopyUrl}
-          />
+          <ScrollArea viewportClassName="flex flex-col max-h-[400px] focus-visible:ring-0 focus-visible:outline-none">
+            <ResultList
+              results={results}
+              selectedIndex={selectedIndex}
+              onSelectIndex={setSelectedIndex}
+              onPlay={handlePlay}
+              onAddToQueue={handleAddToQueue}
+              onAddNext={handleAddNext}
+              onAddToLibrary={handleAddToLibrary}
+              onOpenExternal={handleOpenExternal}
+              onCopyUrl={handleCopyUrl}
+            />
+          </ScrollArea>
         )}
 
         {showEmptyState && !hasKey && (

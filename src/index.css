@@ -1,6 +1,6 @@
-@import "tailwindcss";
-
-@custom-variant dark (&:is(.dark *));
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@source "./**/*.tsx";
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);

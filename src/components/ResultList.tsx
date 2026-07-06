@@ -1,4 +1,3 @@
-import { ScrollArea } from '@lumen-media/ui';
 import { useCallback, useEffect, useRef } from 'react';
 import type { YoutubeVideoResult } from '../youtube-types.js';
 import { ResultRow } from './ResultRow.js';
@@ -40,24 +39,22 @@ export function ResultList({
   if (results.length === 0) return null;
 
   return (
-    <ScrollArea className="flex flex-col max-h-[400px]">
-      <div ref={listRef} role="listbox" aria-label="Search results" className="py-1">
-        {results.map((video, index) => (
-          <ResultRow
-            key={video.videoId}
-            video={video}
-            selected={index === selectedIndex}
-            onSelect={() => onSelectIndex(index)}
-            onPlay={() => onPlay(video)}
-            onAddToQueue={() => onAddToQueue(video)}
-            onAddNext={() => onAddNext(video)}
-            onAddToLibrary={() => onAddToLibrary(video)}
-            onOpenExternal={() => onOpenExternal(video)}
-            onCopyUrl={() => onCopyUrl(video)}
-            index={index}
-          />
-        ))}
-      </div>
-    </ScrollArea>
+    <div ref={listRef} role="listbox" aria-label="Search results" className="py-1">
+      {results.map((video, index) => (
+        <ResultRow
+          key={video.videoId}
+          video={video}
+          selected={index === selectedIndex}
+          onSelect={() => onSelectIndex(index)}
+          onPlay={() => onPlay(video)}
+          onAddToQueue={() => onAddToQueue(video)}
+          onAddNext={() => onAddNext(video)}
+          onAddToLibrary={() => onAddToLibrary(video)}
+          onOpenExternal={() => onOpenExternal(video)}
+          onCopyUrl={() => onCopyUrl(video)}
+          index={index}
+        />
+      ))}
+    </div>
   );
 }
