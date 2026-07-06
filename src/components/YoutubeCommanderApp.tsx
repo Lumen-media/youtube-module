@@ -135,8 +135,12 @@ function YoutubeCommanderInner({
   }, [searchResult.hasNextPage, searchResult.fetchNextPage]);
 
   const handlePlay = (video: YoutubeVideoResult) => {
+    const q = host.queue as unknown as Record<string, unknown>;
+    if (typeof q.addUrl === 'function') {
+      q.addUrl({ url: video.url, position: 'next' });
+    }
+    host.queue.next();
     host.ui.notify({ message: t('playingVideo', { title: video.title }) });
-    host.player.play?.(video.videoId);
   };
 
   const handleAddToQueue = useCallback(

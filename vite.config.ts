@@ -6,6 +6,9 @@ import { defineConfig } from "vite";
 const HOST_EXTERNALS = ["react", "react-dom", "@lumen-media/ui", "@lumen-media/module-sdk"];
 
 export default defineConfig({
+  define: {
+    "process.env.NODE_ENV": JSON.stringify("production"),
+  },
   css: {
     postcss: {
       plugins: [tailwindcss()],
