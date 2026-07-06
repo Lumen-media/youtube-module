@@ -166,36 +166,94 @@ export function YoutubeCommanderApp({
     }
   };
 
-  useEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      const tag = document.activeElement?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA') {
-        (document.activeElement as HTMLElement).blur();
-        e.stopPropagation();
+  useEventListener(
+    'keydown',
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        const tag = document.activeElement?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA') {
+          (document.activeElement as HTMLElement).blur();
+          e.stopPropagation();
+          return;
+        }
+        if (view === 'settings') {
+          e.stopPropagation();
+          setView('search');
+          return;
+        }
         return;
       }
-      if (view === 'settings') {
+
+      if (results.length === 0) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
         e.stopPropagation();
-        setView('search');
+        setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
         return;
       }
-      return;
-    }
 
-    if (results.length === 0) return;
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        e.stopPropagation();
+        setSelectedIndex((prev) => Math.max(prev - 1, 0));
+        return;
+      }
 
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
-      return;
-    }
+      const video = results[selectedIndex];
+      if (!video) return;
 
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedIndex((prev) => Math.max(prev - 1, 0));
-      return;
-    }
-  });
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.shiftKey) {
+          handleAddToQueue(video);
+        } else if (e.ctrlKey || e.metaKey) {
+          handleAddToLibrary(video);
+        } else {
+          handlePlay(video);
+        }
+        return;
+      }
+
+      if (e.key === 'q' || e.key === 'Q') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleAddToQueue(video);
+        return;
+      }
+
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleAddNext(video);
+        return;
+      }
+
+      if (e.key === 'l' || e.key === 'L') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleAddToLibrary(video);
+        return;
+      }
+
+      if (e.key === 'o' || e.key === 'O') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleOpenExternal(video);
+        return;
+      }
+
+      if (e.key === 'y' || e.key === 'Y') {
+        e.preventDefault();
+        e.stopPropagation();
+        handleCopyUrl(video);
+        return;
+      }
+    },
+    undefined,
+    { capture: true }
+  );
 
   const handleSavePrefs = async (newPrefs: YoutubePreferences) => {
     const saved = await prefsStore.save(newPrefs);
