@@ -1,3 +1,4 @@
+import './index.css';
 import { type CommanderAppProps, type LumenHost, LumenPlugin } from '@lumen-media/module-sdk';
 import { TvMinimalPlay } from 'lucide-react';
 import { YoutubeCommanderApp } from './components/YoutubeCommanderApp.js';

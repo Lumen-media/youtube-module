@@ -1,4 +1,5 @@
 import { Kbd } from '@lumen-media/ui';
+import { Video } from 'lucide-react';
 import { t } from '../i18n.js';
 import type { YoutubeVideoResult } from '../youtube-types.js';
 
@@ -36,36 +37,9 @@ function timeAgo(dateStr?: string): string {
   return t('yearsAgo', { count: years });
 }
 
-const rowStyle = (selected: boolean): React.CSSProperties => ({
-  display: 'flex',
-  gap: 12,
-  padding: '8px 12px',
-  cursor: 'pointer',
-  background: selected ? 'var(--accent)' : 'transparent',
-  outline: selected ? '2px solid var(--ring)' : 'none',
-  outlineOffset: selected ? '-2px' : undefined,
-  borderRadius: 6,
-  transition: 'background 0.1s',
-  userSelect: 'none',
-});
-
-const thumbnailStyle: React.CSSProperties = {
-  width: 120,
-  height: 68,
-  borderRadius: 4,
-  objectFit: 'cover',
-  flexShrink: 0,
-  background: 'var(--muted)',
-};
-
-const infoStyle: React.CSSProperties = {
-  flex: 1,
-  minWidth: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 2,
-  justifyContent: 'center',
-};
+const selectedClasses = 'bg-accent outline-2 outline-offset-[-2px] outline-[var(--ring)]';
+const baseClasses =
+  'flex gap-3 px-3 py-2 cursor-pointer rounded-md transition-[background] duration-100 select-none outline-none';
 
 export function ResultRow({
   video,
@@ -128,128 +102,59 @@ export function ResultRow({
       role="option"
       aria-selected={selected}
       tabIndex={-1}
-      style={rowStyle(selected)}
+      className={`${baseClasses} ${selected ? selectedClasses : ''}`}
       onClick={onPlay}
       onMouseEnter={onSelect}
       onDoubleClick={onPlay}
       onKeyDown={handleKeyDown}
       data-index={index}
     >
-      <div style={{ position: 'relative', flexShrink: 0 }}>
+      <div className="relative shrink-0">
         {video.thumbnailUrl ? (
-          <img src={video.thumbnailUrl} alt={video.title} style={thumbnailStyle} loading="lazy" />
+          <img
+            src={video.thumbnailUrl}
+            alt={video.title}
+            className="w-[120px] h-[68px] rounded object-cover shrink-0 bg-muted"
+            loading="lazy"
+          />
         ) : (
-          <div
-            style={{
-              ...thumbnailStyle,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--muted-foreground)',
-            }}
-          >
-            🎬
+          <div className="w-[120px] h-[68px] rounded object-cover shrink-0 bg-muted flex items-center justify-center text-muted-foreground">
+            <Video size={20} aria-hidden="true" />
           </div>
         )}
         {video.durationSeconds != null && video.durationSeconds > 0 && (
-          <span
-            style={{
-              position: 'absolute',
-              bottom: 4,
-              right: 4,
-              background: 'rgba(0,0,0,0.8)',
-              color: '#fff',
-              fontSize: 11,
-              padding: '1px 4px',
-              borderRadius: 3,
-              fontWeight: 600,
-            }}
-          >
+          <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[11px] px-1 py-[1px] rounded-sm font-semibold">
             {formatDuration(video.durationSeconds)}
           </span>
         )}
         {video.liveBroadcastContent === 'live' && (
-          <span
-            style={{
-              position: 'absolute',
-              top: 4,
-              left: 4,
-              background: 'red',
-              color: '#fff',
-              fontSize: 10,
-              fontWeight: 700,
-              padding: '1px 5px',
-              borderRadius: 3,
-              textTransform: 'uppercase',
-            }}
-          >
+          <span className="absolute top-1 left-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-[1px] rounded-sm uppercase">
             LIVE
           </span>
         )}
         {video.liveBroadcastContent === 'upcoming' && (
-          <span
-            style={{
-              position: 'absolute',
-              top: 4,
-              left: 4,
-              background: 'var(--primary)',
-              color: '#fff',
-              fontSize: 10,
-              fontWeight: 700,
-              padding: '1px 5px',
-              borderRadius: 3,
-              textTransform: 'uppercase',
-            }}
-          >
+          <span className="absolute top-1 left-1 bg-primary text-white text-[10px] font-bold px-1.5 py-[1px] rounded-sm uppercase">
             UPCOMING
           </span>
         )}
       </div>
 
-      <div style={infoStyle}>
+      <div className="flex-1 min-w-0 flex flex-col gap-0.5 justify-center">
         <div
-          style={{
-            fontWeight: 600,
-            fontSize: 14,
-            lineHeight: 1.3,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            color: 'var(--foreground)',
-          }}
+          className="font-semibold text-sm leading-tight line-clamp-2 text-foreground"
           title={video.title}
         >
           {video.title}
         </div>
-        <div style={{ fontSize: 12, color: 'var(--muted-foreground)', marginTop: 2 }}>
-          {video.channelTitle}
-        </div>
-        <div
-          style={{
-            fontSize: 11,
-            color: 'var(--muted-foreground)',
-            display: 'flex',
-            gap: 8,
-            marginTop: 2,
-          }}
-        >
+        <div className="text-xs text-muted-foreground mt-0.5">{video.channelTitle}</div>
+        <div className="text-[11px] text-muted-foreground flex gap-2 mt-0.5">
           {video.viewCount != null && (
             <span>{t('views', { count: formatViewCount(video.viewCount) })}</span>
           )}
           {timeAgo(video.publishedAt) && <span>{timeAgo(video.publishedAt)}</span>}
         </div>
         {selected && (
-          <div
-            style={{
-              fontSize: 11,
-              color: 'var(--muted-foreground)',
-              display: 'flex',
-              gap: 6,
-              marginTop: 4,
-              flexWrap: 'wrap',
-            }}
-          >
+          <div className="text-[11px] text-muted-foreground flex gap-1.5 mt-1 flex-wrap">
             <span>
               <Kbd>↵</Kbd> {t('playAction')}
             </span>

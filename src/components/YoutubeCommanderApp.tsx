@@ -4,6 +4,7 @@ import type {
   LumenHost,
 } from '@lumen-media/module-sdk';
 import { Button, Empty } from '@lumen-media/ui';
+import { BarChart3, Globe, Inbox, Key, Search, Settings, TriangleAlert, Video } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PreferencesStore } from '../data/preferences.js';
 import { t } from '../i18n.js';
@@ -50,10 +51,10 @@ export function YoutubeCommanderApp({
         variant="ghost"
         size="sm"
         onClick={() => setView('settings')}
-        style={{ height: 40, width: 40, fontSize: 18 }}
+        className="h-10 w-10 p-0"
         aria-label={t('settings')}
       >
-        ⚙
+        <Settings size={16} aria-hidden="true" />
       </Button>
     );
 
@@ -191,7 +192,7 @@ export function YoutubeCommanderApp({
 
   if (view === 'settings') {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div className="flex flex-col h-full">
         <SettingsView prefs={prefs} onSave={handleSavePrefs} onClose={() => setView('search')} />
       </div>
     );
@@ -200,19 +201,15 @@ export function YoutubeCommanderApp({
   return (
     <div
       role="application"
-      style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}
+      className="flex flex-col h-full overflow-hidden"
       onKeyDown={handleKeyDown}
       tabIndex={-1}
     >
-      <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
-        {loading && (
-          <div style={{ padding: 16, textAlign: 'center', color: 'var(--muted-foreground)' }}>
-            {t('searching')}
-          </div>
-        )}
+      <div className="flex-1 overflow-auto min-h-0">
+        {loading && <div className="p-4 text-center text-muted-foreground">{t('searching')}</div>}
 
         {error && !loading && (
-          <div style={{ padding: 16 }}>
+          <div className="p-4">
             <ErrorState error={error} onOpenSettings={() => setView('settings')} />
           </div>
         )}
@@ -232,9 +229,11 @@ export function YoutubeCommanderApp({
         )}
 
         {showEmptyState && !hasKey && (
-          <div style={{ padding: 16 }}>
+          <div className="p-4">
             <Empty>
-              <Empty.EmptyMedia>🎬</Empty.EmptyMedia>
+              <Empty.EmptyMedia>
+                <Video size={24} aria-hidden="true" />
+              </Empty.EmptyMedia>
               <Empty.EmptyHeader>
                 <Empty.EmptyTitle>{t('noKeyTitle')}</Empty.EmptyTitle>
                 <Empty.EmptyDescription>{t('noKeyDescription')}</Empty.EmptyDescription>
@@ -247,9 +246,11 @@ export function YoutubeCommanderApp({
         )}
 
         {showEmptyState && hasKey && query.trim() === '' && (
-          <div style={{ padding: 16 }}>
+          <div className="p-4">
             <Empty>
-              <Empty.EmptyMedia>🔍</Empty.EmptyMedia>
+              <Empty.EmptyMedia>
+                <Search size={24} aria-hidden="true" />
+              </Empty.EmptyMedia>
               <Empty.EmptyHeader>
                 <Empty.EmptyTitle>{t('searchReady')}</Empty.EmptyTitle>
                 <Empty.EmptyDescription>{t('searchReadyDescription')}</Empty.EmptyDescription>
@@ -259,9 +260,11 @@ export function YoutubeCommanderApp({
         )}
 
         {!loading && !error && hasKey && query.trim() && results.length === 0 && (
-          <div style={{ padding: 16 }}>
+          <div className="p-4">
             <Empty>
-              <Empty.EmptyMedia>📭</Empty.EmptyMedia>
+              <Empty.EmptyMedia>
+                <Inbox size={24} aria-hidden="true" />
+              </Empty.EmptyMedia>
               <Empty.EmptyHeader>
                 <Empty.EmptyTitle>{t('noResults')}</Empty.EmptyTitle>
                 <Empty.EmptyDescription>{t('noResultsDescription')}</Empty.EmptyDescription>
@@ -279,7 +282,9 @@ function ErrorState({ error, onOpenSettings }: { error: SearchError; onOpenSetti
     case 'missing_key':
       return (
         <Empty>
-          <Empty.EmptyMedia>🔑</Empty.EmptyMedia>
+          <Empty.EmptyMedia>
+            <Key size={24} aria-hidden="true" />
+          </Empty.EmptyMedia>
           <Empty.EmptyHeader>
             <Empty.EmptyTitle>{t('noKeyTitle')}</Empty.EmptyTitle>
             <Empty.EmptyDescription>{t('noKeyDescription')}</Empty.EmptyDescription>
@@ -293,7 +298,9 @@ function ErrorState({ error, onOpenSettings }: { error: SearchError; onOpenSetti
     case 'invalid_key':
       return (
         <Empty>
-          <Empty.EmptyMedia>🔑</Empty.EmptyMedia>
+          <Empty.EmptyMedia>
+            <Key size={24} aria-hidden="true" />
+          </Empty.EmptyMedia>
           <Empty.EmptyHeader>
             <Empty.EmptyTitle>{t('invalidKeyTitle')}</Empty.EmptyTitle>
             <Empty.EmptyDescription>{t('invalidKeyDescription')}</Empty.EmptyDescription>
@@ -307,7 +314,9 @@ function ErrorState({ error, onOpenSettings }: { error: SearchError; onOpenSetti
     case 'quota_exceeded':
       return (
         <Empty>
-          <Empty.EmptyMedia>📊</Empty.EmptyMedia>
+          <Empty.EmptyMedia>
+            <BarChart3 size={24} aria-hidden="true" />
+          </Empty.EmptyMedia>
           <Empty.EmptyHeader>
             <Empty.EmptyTitle>{t('quotaTitle')}</Empty.EmptyTitle>
             <Empty.EmptyDescription>{t('quotaDescription')}</Empty.EmptyDescription>
@@ -318,7 +327,9 @@ function ErrorState({ error, onOpenSettings }: { error: SearchError; onOpenSetti
     case 'network':
       return (
         <Empty>
-          <Empty.EmptyMedia>🌐</Empty.EmptyMedia>
+          <Empty.EmptyMedia>
+            <Globe size={24} aria-hidden="true" />
+          </Empty.EmptyMedia>
           <Empty.EmptyHeader>
             <Empty.EmptyTitle>{t('networkTitle')}</Empty.EmptyTitle>
             <Empty.EmptyDescription>{error.message}</Empty.EmptyDescription>
@@ -332,7 +343,9 @@ function ErrorState({ error, onOpenSettings }: { error: SearchError; onOpenSetti
     case 'api':
       return (
         <Empty>
-          <Empty.EmptyMedia>⚠️</Empty.EmptyMedia>
+          <Empty.EmptyMedia>
+            <TriangleAlert size={24} aria-hidden="true" />
+          </Empty.EmptyMedia>
           <Empty.EmptyHeader>
             <Empty.EmptyTitle>{t('apiErrorTitle')}</Empty.EmptyTitle>
             <Empty.EmptyDescription>{error.message}</Empty.EmptyDescription>

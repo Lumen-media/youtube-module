@@ -39,63 +39,59 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
   const maskedKey = apiKey ? `${apiKey.slice(0, 4)}••••${apiKey.slice(-4)}` : '';
 
   return (
-    <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <h2 style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>{t('settingsTitle')}</h2>
+    <div className="p-4 flex flex-col gap-4">
+      <h2 className="text-base font-semibold m-0">{t('settingsTitle')}</h2>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div className="flex flex-col gap-1">
         <Label>{t('apiKeyLabel')}</Label>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div className="flex gap-2 items-center">
           <Input
             type={visible ? 'text' : 'password'}
             value={apiKey}
             onChange={(e) => setApiKey(e.currentTarget.value)}
             placeholder={t('apiKeyPlaceholder')}
-            style={{ flex: 1, fontFamily: 'monospace' }}
+            className="flex-1 font-mono"
           />
           <Button variant="ghost" size="sm" onClick={() => setVisible(!visible)}>
             {visible ? t('hide') : t('show')}
           </Button>
         </div>
         {apiKey && !visible && (
-          <span style={{ fontSize: 12, color: 'var(--muted-foreground)', fontFamily: 'monospace' }}>
-            {maskedKey}
-          </span>
+          <span className="text-xs text-muted-foreground font-mono">{maskedKey}</span>
         )}
-        <p style={{ fontSize: 11, color: 'var(--muted-foreground)', margin: '2px 0 0' }}>
-          {t('apiKeyHint')}
-        </p>
+        <p className="text-[11px] text-muted-foreground mt-0.5 mb-0">{t('apiKeyHint')}</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1">
           <Label>{t('regionLabel')}</Label>
           <Input
             value={regionCode}
             onChange={(e) => setRegionCode(e.currentTarget.value.toUpperCase())}
             placeholder="BR"
             maxLength={2}
-            style={{ width: '100%' }}
+            className="w-full"
           />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div className="flex flex-col gap-1">
           <Label>{t('languageLabel')}</Label>
           <Input
             value={relevanceLanguage}
             onChange={(e) => setRelevanceLanguage(e.currentTarget.value)}
             placeholder="pt"
             maxLength={2}
-            style={{ width: '100%' }}
+            className="w-full"
           />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div className="flex flex-col gap-1">
           <Label>{t('safeSearchLabel')}</Label>
           <Select
             value={safeSearch}
             onValueChange={(v) => setSafeSearch(v as YoutubePreferences['safeSearch'])}
           >
-            <Select.SelectTrigger style={{ width: '100%' }}>
+            <Select.SelectTrigger className="w-full">
               <Select.SelectValue />
             </Select.SelectTrigger>
             <Select.SelectContent>
@@ -106,13 +102,13 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
           </Select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div className="flex flex-col gap-1">
           <Label>{t('maxResultsLabel')}</Label>
           <Select
             value={String(maxResults)}
             onValueChange={(v) => setMaxResults(Number(v) as YoutubePreferences['maxResults'])}
           >
-            <Select.SelectTrigger style={{ width: '100%' }}>
+            <Select.SelectTrigger className="w-full">
               <Select.SelectValue />
             </Select.SelectTrigger>
             <Select.SelectContent>
@@ -123,13 +119,13 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
           </Select>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, gridColumn: '1 / -1' }}>
+        <div className="flex flex-col gap-1 col-span-full">
           <Label>{t('defaultActionLabel')}</Label>
           <Select
             value={defaultAction}
             onValueChange={(v) => setDefaultAction(v as YoutubePreferences['defaultAction'])}
           >
-            <Select.SelectTrigger style={{ width: '100%' }}>
+            <Select.SelectTrigger className="w-full">
               <Select.SelectValue />
             </Select.SelectTrigger>
             <Select.SelectContent>
@@ -140,7 +136,7 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
+      <div className="flex gap-2 justify-end mt-2">
         <Button variant="ghost" onClick={onClose} disabled={saving}>
           {t('cancel')}
         </Button>
