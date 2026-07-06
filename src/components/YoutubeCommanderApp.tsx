@@ -5,7 +5,16 @@ import type {
 } from '@lumen-media/module-sdk';
 import { ScrollArea } from '@lumen-media/module-sdk/ui';
 import { Button, Empty } from '@lumen-media/ui';
-import { BarChart3, Globe, Inbox, Key, Search, Settings, TriangleAlert, Video } from 'lucide-react';
+import {
+  BarChart3,
+  Globe,
+  Inbox,
+  Key,
+  Search,
+  Settings2,
+  TriangleAlert,
+  Video,
+} from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 import type { PreferencesStore } from '../data/preferences.js';
@@ -56,7 +65,7 @@ export function YoutubeCommanderApp({
         className="h-10 w-10 p-0"
         aria-label={t('settings')}
       >
-        <Settings size={16} aria-hidden="true" />
+        <Settings2 size={16} aria-hidden="true" />
       </Button>
     );
 
@@ -157,7 +166,17 @@ export function YoutubeCommanderApp({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  useEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') {
+        (document.activeElement as HTMLElement).blur();
+        e.stopPropagation();
+        return;
+      }
+      return;
+    }
+
     if (results.length === 0) return;
 
     if (e.key === 'ArrowDown') {
@@ -171,12 +190,7 @@ export function YoutubeCommanderApp({
       setSelectedIndex((prev) => Math.max(prev - 1, 0));
       return;
     }
-
-    if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
-      // handled by ResultRow onKeyDown
-      return;
-    }
-  };
+  });
 
   const handleSavePrefs = async (newPrefs: YoutubePreferences) => {
     const saved = await prefsStore.save(newPrefs);
@@ -195,12 +209,7 @@ export function YoutubeCommanderApp({
   }
 
   return (
-    <div
-      role="application"
-      className="flex flex-col h-full overflow-hidden"
-      onKeyDown={handleKeyDown}
-      tabIndex={-1}
-    >
+    <div className="flex flex-col h-full overflow-hidden">
       <div className="flex-1 min-h-0">
         {loading && <div className="p-4 text-center text-muted-foreground">{t('searching')}</div>}
 
