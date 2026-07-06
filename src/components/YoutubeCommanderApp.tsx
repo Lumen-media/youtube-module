@@ -18,7 +18,7 @@ import {
   Video,
   WifiOff,
 } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebounceValue, useEventListener } from 'usehooks-ts';
 import type { PreferencesStore } from '../data/preferences.js';
 import { useYoutubeSearch } from '../hooks/useYoutubeSearch.js';
@@ -77,12 +77,8 @@ function YoutubeCommanderInner({
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const [api, setApi] = useState<YoutubeApi | null>(null);
+  const api = useMemo(() => new YoutubeApi(host.net, prefs), [host.net, prefs]);
   const [debouncedQuery] = useDebounceValue(query, 400);
-
-  useEffect(() => {
-    setApi(new YoutubeApi(host.net, prefs));
-  }, [prefs, host.net]);
 
   useEventListener('online', () => setIsOffline(false));
   useEventListener('offline', () => setIsOffline(true));
