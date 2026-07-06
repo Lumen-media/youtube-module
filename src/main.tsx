@@ -1,14 +1,20 @@
-import './index.css';
 import { type CommanderAppProps, type LumenHost, LumenPlugin } from '@lumen-media/module-sdk';
 import { TvMinimalPlay } from 'lucide-react';
 import { YoutubeCommanderApp } from './components/YoutubeCommanderApp.js';
 import { PreferencesStore } from './data/preferences.js';
 import { setupI18n, t } from './i18n.js';
+import css from './index.css?inline';
 
 export default class YoutubeModulePlugin extends LumenPlugin {
+  private styleEl: HTMLStyleElement | null = null;
   private prefsStore!: PreferencesStore;
 
   async onload(host: LumenHost): Promise<void> {
+    this.styleEl = document.createElement('style');
+    this.styleEl.setAttribute('data-module', host.meta.id);
+    this.styleEl.textContent = css;
+    document.head.appendChild(this.styleEl);
+
     setupI18n(host.app.locale);
 
     this.prefsStore = new PreferencesStore(host.data.json);
@@ -103,5 +109,10 @@ export default class YoutubeModulePlugin extends LumenPlugin {
         },
       ],
     });
+  }
+
+  async onunload(): Promise<void> {
+    this.styleEl?.remove();
+    this.styleEl = null;
   }
 }
