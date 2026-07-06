@@ -37,6 +37,9 @@ export function useYoutubeSearch(
     enabled: !!trimmed && !isUrlCase && !!api,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   const directResult: YoutubeVideoResult | null = useMemo(
@@ -53,9 +56,16 @@ export function useYoutubeSearch(
     [urlId, trimmed]
   );
 
-  const results = directResult
-    ? [directResult]
-    : (queryResult.data?.pages.flatMap((p) => p.results) ?? []);
+  const results = useMemo(() => {
+    if (directResult) return [directResult];
+    const all = queryResult.data?.pages.flatMap((p) => p.results) ?? [];
+    const seen = new Set<string>();
+    return all.filter((r) => {
+      if (seen.has(r.videoId)) return false;
+      seen.add(r.videoId);
+      return true;
+    });
+  }, [directResult, queryResult.data?.pages]);
 
   const totalPages = queryResult.data?.pages.length ?? 0;
   const hasNextPage = !!queryResult.hasNextPage && totalPages < MAX_AUTO_PAGES;
@@ -63,7 +73,7 @@ export function useYoutubeSearch(
 
   return {
     results,
-    error: (queryResult.error as SearchError) ?? null,
+    error: (queryResult.error as unknown as SearchError) ?? null,
     isLoading: queryResult.isLoading,
     isFetching: queryResult.isFetching,
     isFetchingNextPage: queryResult.isFetchingNextPage,
