@@ -9,7 +9,9 @@
     "pack": "lumen-module build && lumen-module pack",
     "sync-manifest": "node scripts/sync-manifest.js",
     "version": "pnpm run sync-manifest && git add manifest.json",
-    "validate": "lumen-module validate"
+    "validate": "lumen-module validate",
+    "lint": "biome check --write src/",
+    "format": "biome format --write src/"
   },
   "dependencies": {
     "lucide-react": "^1.23.0",
@@ -17,6 +19,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.2",
     "@lumen-media/module-cli": "^0.11.0",
     "@lumen-media/module-sdk": "^0.11.0",
     "@types/node": "^22.0.0",

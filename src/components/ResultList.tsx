@@ -1,17 +1,17 @@
-import { useCallback, useEffect, useRef } from "react"
-import type { YoutubeVideoResult } from "../youtube-types.js"
-import { ResultRow } from "./ResultRow.js"
+import { useCallback, useEffect, useRef } from 'react';
+import type { YoutubeVideoResult } from '../youtube-types.js';
+import { ResultRow } from './ResultRow.js';
 
 interface ResultListProps {
-  results: YoutubeVideoResult[]
-  selectedIndex: number
-  onSelectIndex: (index: number) => void
-  onPlay: (video: YoutubeVideoResult) => void
-  onAddToQueue: (video: YoutubeVideoResult) => void
-  onAddNext: (video: YoutubeVideoResult) => void
-  onAddToLibrary: (video: YoutubeVideoResult) => void
-  onOpenExternal: (video: YoutubeVideoResult) => void
-  onCopyUrl: (video: YoutubeVideoResult) => void
+  results: YoutubeVideoResult[];
+  selectedIndex: number;
+  onSelectIndex: (index: number) => void;
+  onPlay: (video: YoutubeVideoResult) => void;
+  onAddToQueue: (video: YoutubeVideoResult) => void;
+  onAddNext: (video: YoutubeVideoResult) => void;
+  onAddToLibrary: (video: YoutubeVideoResult) => void;
+  onOpenExternal: (video: YoutubeVideoResult) => void;
+  onCopyUrl: (video: YoutubeVideoResult) => void;
 }
 
 export function ResultList({
@@ -25,21 +25,21 @@ export function ResultList({
   onOpenExternal,
   onCopyUrl,
 }: ResultListProps) {
-  const listRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null);
 
   const scrollToIndex = useCallback((index: number) => {
-    const el = listRef.current?.querySelector(`[data-index="${index}"]`)
-    el?.scrollIntoView({ block: "nearest" })
-  }, [])
+    const el = listRef.current?.querySelector(`[data-index="${index}"]`);
+    el?.scrollIntoView({ block: 'nearest' });
+  }, []);
 
   useEffect(() => {
-    scrollToIndex(selectedIndex)
-  }, [selectedIndex, scrollToIndex])
+    scrollToIndex(selectedIndex);
+  }, [selectedIndex, scrollToIndex]);
 
-  if (results.length === 0) return null
+  if (results.length === 0) return null;
 
   return (
-    <div ref={listRef} role="listbox" aria-label="Search results" style={{ padding: "4px 0" }}>
+    <div ref={listRef} role="listbox" aria-label="Search results" style={{ padding: '4px 0' }}>
       {results.map((video, index) => (
         <ResultRow
           key={video.videoId}
@@ -56,5 +56,5 @@ export function ResultList({
         />
       ))}
     </div>
-  )
+  );
 }
