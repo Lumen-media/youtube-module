@@ -3,25 +3,27 @@ import type {
   CommanderSearchTrailingComponent,
   LumenHost,
 } from '@lumen-media/module-sdk';
-import { ScrollArea } from '@lumen-media/module-sdk/ui';
 import { Button, Empty } from '@lumen-media/ui';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   BarChart3,
   Globe,
   Inbox,
   Key,
+  Loader,
   Search,
   Settings2,
   TriangleAlert,
   Video,
+  WifiOff,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDebounceValue, useEventListener } from 'usehooks-ts';
 import type { PreferencesStore } from '../data/preferences.js';
+import { useYoutubeSearch } from '../hooks/useYoutubeSearch.js';
 import { t } from '../i18n.js';
 import { YoutubeApi } from '../youtube-api.js';
 import type { SearchError, YoutubePreferences, YoutubeVideoResult } from '../youtube-types.js';
-import { makeVideoUrl, parseVideoId } from '../youtube-url.js';
 import { ResultList } from './ResultList.js';
 import { SettingsView } from './SettingsView.js';
 
@@ -40,13 +42,40 @@ export function YoutubeCommanderApp({
   commanderQuery,
   setSearchTrailing,
 }: YoutubeCommanderAppProps) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: { staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000, retry: 1 },
+        },
+      })
+  );
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <YoutubeCommanderInner
+        host={host}
+        prefsStore={prefsStore}
+        commanderQuery={commanderQuery}
+        setSearchTrailing={setSearchTrailing}
+      />
+    </QueryClientProvider>
+  );
+}
+
+function YoutubeCommanderInner({
+  host,
+  prefsStore,
+  commanderQuery,
+  setSearchTrailing,
+}: YoutubeCommanderAppProps) {
   const [view, setView] = useState<ViewState>('search');
   const query = commanderQuery ?? '';
-  const [results, setResults] = useState<YoutubeVideoResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<SearchError | null>(null);
   const [prefs, setPrefs] = useState<YoutubePreferences>(prefsStore.get());
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const apiRef = useRef<YoutubeApi | null>(null);
   const [debouncedQuery] = useDebounceValue(query, 400);
@@ -54,6 +83,20 @@ export function YoutubeCommanderApp({
   useEffect(() => {
     apiRef.current = new YoutubeApi(host.net, prefs);
   }, [prefs, host.net]);
+
+  useEventListener('online', () => setIsOffline(false));
+  useEventListener('offline', () => setIsOffline(true));
+
+  const searchResult = useYoutubeSearch(apiRef.current, debouncedQuery, prefs.apiKey);
+
+  const results = searchResult.results;
+
+  useEffect(() => {
+    void debouncedQuery;
+    if (isOffline) return;
+    setSelectedIndex(0);
+  }, [debouncedQuery, isOffline]);
+
   useEffect(() => {
     if (!setSearchTrailing) return;
 
@@ -73,47 +116,23 @@ export function YoutubeCommanderApp({
     return () => setSearchTrailing(undefined);
   }, [setSearchTrailing]);
 
-  const doSearch = useCallback(async (q: string) => {
-    if (!q.trim()) {
-      setResults([]);
-      setError(null);
-      return;
-    }
-
-    const urlId = parseVideoId(q.trim());
-    if (urlId) {
-      setResults([
-        {
-          videoId: urlId,
-          url: makeVideoUrl(urlId),
-          title: q.trim(),
-          channelTitle: '',
-          thumbnailUrl: `https://i.ytimg.com/vi/${urlId}/mqdefault.jpg`,
-        },
-      ]);
-      setError(null);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const page = await apiRef.current!.search(q.trim());
-      setResults(page.results);
-      setSelectedIndex(0);
-    } catch (err: unknown) {
-      setError(err as SearchError);
-      setResults([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    doSearch(debouncedQuery);
-  }, [debouncedQuery, doSearch]);
+    const el = sentinelRef.current;
+    const container = scrollRef.current;
+    if (!el || !searchResult.hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          searchResult.fetchNextPage();
+        }
+      },
+      { root: container, rootMargin: '300px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [searchResult.hasNextPage, searchResult.fetchNextPage]);
 
   const handlePlay = (video: YoutubeVideoResult) => {
     host.ui.notify({ message: t('playingVideo', { title: video.title }) });
@@ -261,7 +280,11 @@ export function YoutubeCommanderApp({
   };
 
   const hasKey = prefsStore.hasApiKey();
-  const showEmptyState = !loading && !error && results.length === 0 && !query.trim();
+  const showEmptyState =
+    !searchResult.isLoading &&
+    !searchResult.error &&
+    results.length === 0 &&
+    !debouncedQuery.trim();
 
   if (view === 'settings') {
     return (
@@ -274,16 +297,35 @@ export function YoutubeCommanderApp({
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex-1 min-h-0">
-        {loading && <div className="p-4 text-center text-muted-foreground">{t('searching')}</div>}
-
-        {error && !loading && (
+        {isOffline && (
           <div className="p-4">
-            <ErrorState error={error} onOpenSettings={() => setView('settings')} />
+            <Empty>
+              <Empty.EmptyMedia>
+                <WifiOff size={24} aria-hidden="true" />
+              </Empty.EmptyMedia>
+              <Empty.EmptyHeader>
+                <Empty.EmptyTitle>{t('offlineTitle')}</Empty.EmptyTitle>
+                <Empty.EmptyDescription>{t('offlineDescription')}</Empty.EmptyDescription>
+              </Empty.EmptyHeader>
+            </Empty>
           </div>
         )}
 
-        {!loading && !error && results.length > 0 && (
-          <ScrollArea className="flex flex-col max-h-[400px] focus-visible:ring-0 focus-visible:outline-none">
+        {!isOffline && searchResult.isLoading && (
+          <div className="p-4 text-center text-muted-foreground">{t('searching')}</div>
+        )}
+
+        {!isOffline && searchResult.error && !searchResult.isLoading && (
+          <div className="p-4">
+            <ErrorState error={searchResult.error} onOpenSettings={() => setView('settings')} />
+          </div>
+        )}
+
+        {!isOffline && !searchResult.isLoading && !searchResult.error && results.length > 0 && (
+          <div
+            ref={scrollRef}
+            className="flex-1 min-h-0 overflow-y-auto focus-visible:ring-0 focus-visible:outline-none"
+          >
             <ResultList
               results={results}
               selectedIndex={selectedIndex}
@@ -295,7 +337,30 @@ export function YoutubeCommanderApp({
               onOpenExternal={handleOpenExternal}
               onCopyUrl={handleCopyUrl}
             />
-          </ScrollArea>
+
+            {searchResult.isFetchingNextPage && (
+              <div className="flex justify-center py-3">
+                <Loader size={20} className="animate-spin text-muted-foreground" />
+              </div>
+            )}
+
+            {!searchResult.isFetchingNextPage && searchResult.hasNextPage && (
+              <div ref={sentinelRef} className="h-px" />
+            )}
+
+            {searchResult.showLoadMore && (
+              <div className="py-3 text-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => searchResult.fetchNextPage()}
+                  disabled={searchResult.isFetchingNextPage}
+                >
+                  {t('loadMore')}
+                </Button>
+              </div>
+            )}
+          </div>
         )}
 
         {showEmptyState && !hasKey && (
@@ -315,7 +380,7 @@ export function YoutubeCommanderApp({
           </div>
         )}
 
-        {showEmptyState && hasKey && query.trim() === '' && (
+        {showEmptyState && hasKey && debouncedQuery.trim() === '' && (
           <div className="p-4">
             <Empty>
               <Empty.EmptyMedia>
@@ -329,19 +394,24 @@ export function YoutubeCommanderApp({
           </div>
         )}
 
-        {!loading && !error && hasKey && query.trim() && results.length === 0 && (
-          <div className="p-4">
-            <Empty>
-              <Empty.EmptyMedia>
-                <Inbox size={24} aria-hidden="true" />
-              </Empty.EmptyMedia>
-              <Empty.EmptyHeader>
-                <Empty.EmptyTitle>{t('noResults')}</Empty.EmptyTitle>
-                <Empty.EmptyDescription>{t('noResultsDescription')}</Empty.EmptyDescription>
-              </Empty.EmptyHeader>
-            </Empty>
-          </div>
-        )}
+        {!isOffline &&
+          !searchResult.isLoading &&
+          !searchResult.error &&
+          hasKey &&
+          debouncedQuery.trim() &&
+          results.length === 0 && (
+            <div className="p-4">
+              <Empty>
+                <Empty.EmptyMedia>
+                  <Inbox size={24} aria-hidden="true" />
+                </Empty.EmptyMedia>
+                <Empty.EmptyHeader>
+                  <Empty.EmptyTitle>{t('noResults')}</Empty.EmptyTitle>
+                  <Empty.EmptyDescription>{t('noResultsDescription')}</Empty.EmptyDescription>
+                </Empty.EmptyHeader>
+              </Empty>
+            </div>
+          )}
       </div>
     </div>
   );

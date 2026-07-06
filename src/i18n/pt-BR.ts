@@ -37,6 +37,10 @@ const ptBR: Record<string, string> = {
   apiErrorTitle: 'Erro de API',
 
   retry: 'Tentar novamente',
+  loadMore: 'Carregar mais',
+
+  offlineTitle: 'Sem Conexão',
+  offlineDescription: 'É necessária uma conexão com a internet para pesquisar no YouTube.',
 
   settingsTitle: 'Configurações do Módulo YouTube',
   settings: 'Configurações',

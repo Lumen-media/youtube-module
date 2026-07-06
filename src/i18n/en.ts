@@ -37,6 +37,10 @@ const en: Record<string, string> = {
   apiErrorTitle: 'API Error',
 
   retry: 'Retry',
+  loadMore: 'Load more',
+
+  offlineTitle: 'No Connection',
+  offlineDescription: 'An internet connection is required to search YouTube.',
 
   settingsTitle: 'YouTube Module Settings',
   settings: 'Settings',
