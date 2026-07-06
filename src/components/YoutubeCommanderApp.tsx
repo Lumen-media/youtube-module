@@ -3,6 +3,7 @@ import type {
   CommanderSearchTrailingComponent,
   LumenHost,
 } from '@lumen-media/module-sdk';
+import { ScrollArea } from '@lumen-media/module-sdk/ui';
 import { Button, Empty } from '@lumen-media/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -75,7 +76,6 @@ function YoutubeCommanderInner({
   const [prefs, setPrefs] = useState<YoutubePreferences>(prefsStore.get());
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   const apiRef = useRef<YoutubeApi | null>(null);
   const [debouncedQuery] = useDebounceValue(query, 400);
@@ -118,7 +118,6 @@ function YoutubeCommanderInner({
 
   useEffect(() => {
     const el = sentinelRef.current;
-    const container = scrollRef.current;
     if (!el || !searchResult.hasNextPage) return;
 
     const observer = new IntersectionObserver(
@@ -127,7 +126,7 @@ function YoutubeCommanderInner({
           searchResult.fetchNextPage();
         }
       },
-      { root: container, rootMargin: '300px' }
+      { rootMargin: '300px' }
     );
 
     observer.observe(el);
@@ -326,10 +325,7 @@ function YoutubeCommanderInner({
         )}
 
         {!isOffline && !searchResult.isLoading && !searchResult.error && results.length > 0 && (
-          <div
-            ref={scrollRef}
-            className="flex-1 min-h-0 overflow-y-auto focus-visible:ring-0 focus-visible:outline-none"
-          >
+          <ScrollArea className="flex flex-col flex-1 min-h-0 focus-visible:ring-0 focus-visible:outline-none">
             <ResultList
               results={results}
               selectedIndex={selectedIndex}
@@ -364,7 +360,7 @@ function YoutubeCommanderInner({
                 </Button>
               </div>
             )}
-          </div>
+          </ScrollArea>
         )}
 
         {showEmptyState && !hasKey && (
