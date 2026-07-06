@@ -77,17 +77,17 @@ function YoutubeCommanderInner({
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const apiRef = useRef<YoutubeApi | null>(null);
+  const [api, setApi] = useState<YoutubeApi | null>(null);
   const [debouncedQuery] = useDebounceValue(query, 400);
 
   useEffect(() => {
-    apiRef.current = new YoutubeApi(host.net, prefs);
+    setApi(new YoutubeApi(host.net, prefs));
   }, [prefs, host.net]);
 
   useEventListener('online', () => setIsOffline(false));
   useEventListener('offline', () => setIsOffline(true));
 
-  const searchResult = useYoutubeSearch(apiRef.current, debouncedQuery, prefs.apiKey);
+  const searchResult = useYoutubeSearch(api, debouncedQuery, prefs.apiKey);
 
   const results = searchResult.results;
 
