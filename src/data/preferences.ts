@@ -5,11 +5,12 @@ const PREFS_KEY = 'youtube-preferences';
 
 const DEFAULTS: YoutubePreferences = {
   apiKey: '',
+  apiKeyBackup: '',
   regionCode: 'BR',
   relevanceLanguage: '',
   safeSearch: 'moderate',
-  defaultAction: 'addToQueue',
-  maxResults: 10,
+  defaultAction: 'playNow',
+  maxResults: 5,
 };
 
 export class PreferencesStore {

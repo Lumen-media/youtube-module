@@ -47,10 +47,15 @@ const en: Record<string, string> = {
 
   apiKeyLabel: 'YouTube Data API Key',
   apiKeyPlaceholder: 'Paste your API key',
-  apiKeyHint:
-    'This key belongs to you. Get one at https://console.cloud.google.com/apis/credentials',
+  apiKeyHint: 'Pasting a video URL uses zero quota — only text searches consume it (~100/day).',
+  apiKeyBackupLabel: 'Backup API Key (optional)',
+  apiKeyBackupPlaceholder: 'Paste a backup API key',
+  apiKeyBackupHint:
+    'If the primary key hits its quota, the backup key is used automatically. Use a key from a different Google Cloud project for maximum redundancy.',
+  addBackupKey: 'Add backup API key',
   show: 'Show',
   hide: 'Hide',
+  remove: 'Remove',
 
   regionLabel: 'Region Code',
   languageLabel: 'Language',
@@ -65,7 +70,7 @@ const en: Record<string, string> = {
   actionAddToQueue: 'Add to Queue',
   actionPlayNow: 'Play Now',
 
-  cancel: 'Cancel',
+  getKey: 'Get one at Google Cloud Console',
   save: 'Save',
   saving: 'Saving...',
 

@@ -47,10 +47,15 @@ const ptBR: Record<string, string> = {
 
   apiKeyLabel: 'Chave da YouTube Data API',
   apiKeyPlaceholder: 'Cole sua chave de API',
-  apiKeyHint:
-    'Esta chave pertence a você. Obtenha uma em https://console.cloud.google.com/apis/credentials',
+  apiKeyHint: 'Colar URL de vídeo não gasta cota — só pesquisas por texto consomem (~100/dia).',
+  apiKeyBackupLabel: 'Chave de API Reserva (opcional)',
+  apiKeyBackupPlaceholder: 'Cole uma chave de API reserva',
+  apiKeyBackupHint:
+    'Se a chave principal atingir a cota, a chave reserva é usada automaticamente. Use uma chave de um projeto diferente do Google Cloud para máxima redundância.',
+  addBackupKey: 'Adicionar chave de API reserva',
   show: 'Mostrar',
   hide: 'Ocultar',
+  remove: 'Remover',
 
   regionLabel: 'Código da Região',
   languageLabel: 'Idioma',
@@ -65,7 +70,7 @@ const ptBR: Record<string, string> = {
   actionAddToQueue: 'Adicionar à Fila',
   actionPlayNow: 'Tocar Agora',
 
-  cancel: 'Cancelar',
+  getKey: 'Obtenha uma no Google Cloud Console',
   save: 'Salvar',
   saving: 'Salvando...',
 

@@ -85,9 +85,10 @@ export type SearchError =
 
 export interface YoutubePreferences {
   apiKey: string;
+  apiKeyBackup: string;
   regionCode: string;
   relevanceLanguage: string;
   safeSearch: 'none' | 'moderate' | 'strict';
   defaultAction: 'addToQueue' | 'playNow';
-  maxResults: 10 | 25 | 50;
+  maxResults: 5 | 10 | 25 | 50;
 }
