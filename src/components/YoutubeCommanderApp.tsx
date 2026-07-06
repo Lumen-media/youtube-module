@@ -138,7 +138,15 @@ function YoutubeCommanderInner({
 
   const handlePlay = useCallback(
     (video: YoutubeVideoResult) => {
-      host.player.play(video.url);
+      const q = host.queue as unknown as Record<string, unknown>;
+      if (typeof q.addUrl === 'function') {
+        q.addUrl({ url: video.url, position: 'end' });
+      }
+      const state = host.queue.state();
+      const lastIdx = state.items.length - 1;
+      if (lastIdx >= 0) {
+        host.queue.goTo(lastIdx);
+      }
     },
     [host]
   );

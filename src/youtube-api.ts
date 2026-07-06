@@ -96,8 +96,18 @@ export class YoutubeApi {
           lastError = { status: res.status, data: res.data };
           continue;
         }
+        if (!res.ok) {
+          const msg =
+            (res.data as { error?: { message?: string } })?.error?.message ??
+            `Request failed with status ${res.status}`;
+          const err: SearchError = { type: 'api', message: msg };
+          throw err;
+        }
         return res.data;
       } catch (err: unknown) {
+        if (err && typeof err === 'object' && 'type' in err) {
+          throw err;
+        }
         const status =
           err && typeof err === 'object' && 'status' in err
             ? (err as { status: unknown }).status
@@ -107,11 +117,16 @@ export class YoutubeApi {
           lastError = err;
           continue;
         }
-        throw err;
+        const msg = err instanceof Error ? err.message : 'Unknown error';
+        const searchErr: SearchError = { type: 'api', message: msg };
+        throw searchErr;
       }
     }
 
-    throw lastError;
+    const quotaErr: SearchError = {
+      type: 'quota_exceeded',
+    };
+    throw quotaErr;
   }
 
   private async doSearch(query: string, pageToken: string | undefined, key: string) {
