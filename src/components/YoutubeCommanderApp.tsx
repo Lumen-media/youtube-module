@@ -49,7 +49,7 @@ export function YoutubeCommanderApp({
   const [prefs, setPrefs] = useState<YoutubePreferences>(prefsStore.get());
 
   const apiRef = useRef<YoutubeApi | null>(null);
-  const [debouncedQuery] = useDebounceValue(query, 300);
+  const [debouncedQuery] = useDebounceValue(query, 400);
 
   useEffect(() => {
     apiRef.current = new YoutubeApi(host.net, prefs);
