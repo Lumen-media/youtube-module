@@ -325,7 +325,7 @@ function YoutubeCommanderInner({
         {!isOffline && !searchResult.isLoading && !searchResult.error && results.length > 0 && (
           <ScrollArea
             ref={scrollRef}
-            className="max-h-96"
+            className="h-full max-h-96"
             viewportClassName="custom-scrollbar"
           >
             <ResultList
