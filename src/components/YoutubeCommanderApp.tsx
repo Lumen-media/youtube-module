@@ -340,9 +340,12 @@ function YoutubeCommanderInner({
               </div>
             )}
 
-            {!searchResult.isFetchingNextPage && searchResult.hasNextPage && (
-              <div ref={sentinelRef} className="h-px" />
-            )}
+            <div
+              ref={sentinelRef}
+              className={
+                !searchResult.isFetchingNextPage && searchResult.hasNextPage ? 'h-px' : 'hidden'
+              }
+            />
 
             {searchResult.showLoadMore && (
               <div className="py-3 text-center">
