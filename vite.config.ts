@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import tailwindcss from "@tailwindcss/postcss";
 import { defineConfig } from "vite";
 
-const HOST_EXTERNALS = ["react", "react-dom", "@lumen-media/ui", "@lumen-media/module-sdk"];
+const HOST_EXTERNALS = ["react", "react-dom/client", "react-dom/server", "@lumen-media/ui", "@lumen-media/module-sdk"];
 
 export default defineConfig({
   define: {

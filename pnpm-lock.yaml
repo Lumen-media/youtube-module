@@ -34,11 +34,11 @@ importers:
         specifier: ^2.5.2
         version: 2.5.2
       '@lumen-media/module-cli':
-        specifier: ^0.11.2
-        version: 0.11.2(vite@7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0))
+        specifier: ^0.12.0
+        version: 0.12.0(vite@7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0))
       '@lumen-media/module-sdk':
-        specifier: ^0.11.2
-        version: 0.11.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^0.12.1
+        version: 0.12.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tailwindcss/postcss':
         specifier: ^4.3.2
         version: 4.3.2
@@ -297,14 +297,14 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@lumen-media/module-cli@0.11.2':
-    resolution: {integrity: sha512-yB+UOtpcYinvZTPULxiqW9vOxz2LiVaMI0G2vzrv4qmeC1KhJVUOC+yvbKGP80axcgvB32M1b3i4ghch1PubZg==}
+  '@lumen-media/module-cli@0.12.0':
+    resolution: {integrity: sha512-9P2YTCrK+zNqXwSiAZKZkgA/IOOF3S9qDrP1+4nNZ/NzpNj9lXToQ0a6CG10ZVPdlKcYYLYwOcVYQjvzckFN5A==}
     hasBin: true
     peerDependencies:
       vite: '>=5'
 
-  '@lumen-media/module-sdk@0.11.2':
-    resolution: {integrity: sha512-9MSWr+sB1Sr9UNLDG+QV5L6kPNeuzbFYjkJJzpbQlDcbJnxjKsaRkMb4Xxm6gP5JTpAgDiI7Xme60xkeBRaGag==}
+  '@lumen-media/module-sdk@0.12.1':
+    resolution: {integrity: sha512-l3GWJ1tTyUw8FoMxyKLQHYNpwoEt3r2hFaDXSyhlvsQ4EMIua/OqxYLuRKUuqiOqratX/KLP/ROrSq+PXar9Nw==}
     peerDependencies:
       react: '>=19'
       react-dom: '>=19'
@@ -1247,7 +1247,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@lumen-media/module-cli@0.11.2(vite@7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0))':
+  '@lumen-media/module-cli@0.12.0(vite@7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0))':
     dependencies:
       archiver: 7.0.1
       vite: 7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)
@@ -1256,7 +1256,7 @@ snapshots:
       - bare-buffer
       - react-native-b4a
 
-  '@lumen-media/module-sdk@0.11.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@lumen-media/module-sdk@0.12.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)

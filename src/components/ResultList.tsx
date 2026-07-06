@@ -36,7 +36,7 @@ export function ResultList({
   });
 
   useEffect(() => {
-    virtualizer.scrollToIndex(selectedIndex, { align: 'nearest' });
+    virtualizer.scrollToIndex(selectedIndex, { align: 'start' });
   }, [selectedIndex, virtualizer]);
 
   if (results.length === 0) return null;
