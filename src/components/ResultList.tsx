@@ -31,8 +31,10 @@ export function ResultList({
   const virtualizer = useVirtualizer({
     count: results.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => 88,
+    estimateSize: () => 110,
     overscan: 5,
+    measureElement: (el) => el.getBoundingClientRect().height,
+    getItemKey: (index) => results[index]?.url ?? index,
   });
 
   useEffect(() => {
@@ -53,12 +55,13 @@ export function ResultList({
         return (
           <div
             key={virtualItem.key}
+            ref={virtualizer.measureElement}
+            data-index={virtualItem.index}
             style={{
               position: 'absolute',
               top: 0,
               left: 0,
               width: '100%',
-              height: `${virtualItem.size}px`,
               transform: `translateY(${virtualItem.start}px)`,
             }}
           >
