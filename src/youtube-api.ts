@@ -1,4 +1,4 @@
-import type { NetAPI } from '@lumen-media/module-sdk';
+import type { NetAPI, NetMethod, NetResponse } from '@lumen-media/module-sdk';
 import type {
   SearchError,
   YoutubePreferences,
@@ -42,23 +42,108 @@ function normalizeResult(
 }
 
 export class YoutubeApi {
+  #keyOrder: string[];
+
   constructor(
     private net: NetAPI,
     private prefs: YoutubePreferences
-  ) {}
-
-  private get key(): string | null {
-    const k = this.prefs.apiKey;
-    return k?.trim() ? k.trim() : null;
+  ) {
+    this.#keyOrder = this.#buildKeyOrder();
   }
 
-  private assertKey(): string {
-    const key = this.key;
-    if (!key) {
+  #buildKeyOrder(): string[] {
+    const keys: string[] = [];
+    const primary = this.prefs.apiKey?.trim();
+    if (primary) keys.push(primary);
+    const backup = this.prefs.apiKeyBackup?.trim();
+    if (backup) keys.push(backup);
+    return keys;
+  }
+
+  private assertKeys(): string[] {
+    if (this.#keyOrder.length === 0) {
       const err: SearchError = { type: 'missing_key' };
       throw err;
     }
-    return key;
+    return this.#keyOrder;
+  }
+
+  private demoteKey(key: string) {
+    const idx = this.#keyOrder.indexOf(key);
+    if (idx !== -1) {
+      this.#keyOrder.splice(idx, 1);
+      this.#keyOrder.push(key);
+    }
+  }
+
+  private isQuotaError(res: NetResponse<unknown>): boolean {
+    if (res.status === 429 || res.status === 403) return true;
+    const code = (res.data as { error?: { code?: number } })?.error?.code;
+    return code === 429 || code === 403;
+  }
+
+  private async requestWithFallback<T>(
+    makeRequest: (key: string) => Promise<NetResponse<T>>
+  ): Promise<T> {
+    const keys = this.assertKeys();
+    let lastError: unknown;
+
+    for (const key of keys) {
+      try {
+        const res = await makeRequest(key);
+        if (this.isQuotaError(res)) {
+          this.demoteKey(key);
+          lastError = { status: res.status, data: res.data };
+          continue;
+        }
+        return res.data;
+      } catch (err: unknown) {
+        const status =
+          err && typeof err === 'object' && 'status' in err
+            ? (err as { status: unknown }).status
+            : undefined;
+        if (status === 429 || status === 403) {
+          this.demoteKey(key);
+          lastError = err;
+          continue;
+        }
+        throw err;
+      }
+    }
+
+    throw lastError;
+  }
+
+  private async doSearch(query: string, pageToken: string | undefined, key: string) {
+    return this.net.request<YoutubeSearchResponse>({
+      method: 'get' as unknown as NetMethod,
+      url: 'https://www.googleapis.com/youtube/v3/search',
+      query: {
+        part: 'snippet',
+        type: 'video',
+        q: query,
+        key,
+        maxResults: String(this.prefs.maxResults),
+        safeSearch: this.prefs.safeSearch,
+        ...(this.prefs.regionCode ? { regionCode: this.prefs.regionCode } : {}),
+        ...(this.prefs.relevanceLanguage
+          ? { relevanceLanguage: this.prefs.relevanceLanguage }
+          : {}),
+        ...(pageToken ? { pageToken } : {}),
+      },
+    });
+  }
+
+  private async doDetails(videoIds: string[], key: string) {
+    return this.net.request<YoutubeVideoResponse>({
+      method: 'get' as unknown as NetMethod,
+      url: 'https://www.googleapis.com/youtube/v3/videos',
+      query: {
+        part: 'contentDetails,statistics',
+        id: videoIds.join(','),
+        key,
+      },
+    });
   }
 
   async search(
@@ -69,31 +154,9 @@ export class YoutubeApi {
     nextPageToken?: string;
     prevPageToken?: string;
   }> {
-    const key = this.assertKey();
-
-    let searchResponse: YoutubeSearchResponse;
-    try {
-      const res = await this.net.request<YoutubeSearchResponse>({
-        method: 'get',
-        url: 'https://www.googleapis.com/youtube/v3/search',
-        query: {
-          part: 'snippet',
-          type: 'video',
-          q: query,
-          key,
-          maxResults: String(this.prefs.maxResults),
-          safeSearch: this.prefs.safeSearch,
-          ...(this.prefs.regionCode ? { regionCode: this.prefs.regionCode } : {}),
-          ...(this.prefs.relevanceLanguage
-            ? { relevanceLanguage: this.prefs.relevanceLanguage }
-            : {}),
-          ...(pageToken ? { pageToken } : {}),
-        },
-      });
-      searchResponse = res.data;
-    } catch (err: unknown) {
-      throw this.normalizeError(err);
-    }
+    const searchResponse = await this.requestWithFallback((key) =>
+      this.doSearch(query, pageToken, key)
+    );
 
     if (!searchResponse.items?.length) {
       return { results: [] };
@@ -104,17 +167,11 @@ export class YoutubeApi {
     const detailsMap = new Map<string, NonNullable<YoutubeVideoResponse['items']>[number]>();
     if (videoIds.length > 0) {
       try {
-        const detailsRes = await this.net.request<YoutubeVideoResponse>({
-          method: 'get',
-          url: 'https://www.googleapis.com/youtube/v3/videos',
-          query: {
-            part: 'contentDetails,statistics',
-            id: videoIds.join(','),
-            key,
-          },
-        });
-        if (detailsRes.data.items) {
-          for (const item of detailsRes.data.items) {
+        const detailsResponse = await this.requestWithFallback((key) =>
+          this.doDetails(videoIds, key)
+        );
+        if (detailsResponse.items) {
+          for (const item of detailsResponse.items) {
             detailsMap.set(item.id, item);
           }
         }
@@ -132,52 +189,5 @@ export class YoutubeApi {
       nextPageToken: searchResponse.nextPageToken,
       prevPageToken: searchResponse.prevPageToken,
     };
-  }
-
-  private normalizeError(err: unknown): SearchError {
-    if (
-      err &&
-      typeof err === 'object' &&
-      'code' in err &&
-      (err as { code: string }).code === 'permission_denied'
-    ) {
-      return { type: 'invalid_key' };
-    }
-
-    if (
-      err &&
-      typeof err === 'object' &&
-      'code' in err &&
-      (err as { code: string }).code === 'network_error'
-    ) {
-      return { type: 'network', message: (err as Error).message };
-    }
-
-    if (
-      err &&
-      typeof err === 'object' &&
-      'status' in err &&
-      typeof (err as { status: unknown }).status === 'number'
-    ) {
-      const status = (err as { status: number }).status;
-
-      if (status === 403) return { type: 'quota_exceeded' };
-      if (status === 400) return { type: 'invalid_key' };
-
-      return {
-        type: 'api',
-        message: `HTTP ${status}: ${(err as { statusText?: string }).statusText ?? 'Unknown error'}`,
-      };
-    }
-
-    if (err && typeof err === 'object' && 'message' in err) {
-      const msg = (err as Error).message;
-      if (msg?.includes('Failed to fetch') || msg?.includes('NetworkError')) {
-        return { type: 'network', message: msg };
-      }
-      return { type: 'api', message: msg };
-    }
-
-    return { type: 'api', message: 'Unknown error' };
   }
 }
