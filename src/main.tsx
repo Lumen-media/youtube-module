@@ -1,4 +1,4 @@
-import { type LumenHost, LumenPlugin } from '@lumen-media/module-sdk';
+import { type CommanderAppProps, type LumenHost, LumenPlugin } from '@lumen-media/module-sdk';
 import { TvMinimalPlay } from 'lucide-react';
 import { YoutubeCommanderApp } from './components/YoutubeCommanderApp.js';
 import { PreferencesStore } from './data/preferences.js';
@@ -19,7 +19,15 @@ export default class YoutubeModulePlugin extends LumenPlugin {
       subtitle: t('commandSubtitle'),
       type: 'app',
       icon: () => <TvMinimalPlay size={16} />,
-      component: () => <YoutubeCommanderApp host={host} prefsStore={this.prefsStore} />,
+      commanderSearch: { placeholder: t('searchPlaceholder') },
+      component: ({ query, setSearchTrailing }: CommanderAppProps) => (
+        <YoutubeCommanderApp
+          host={host}
+          prefsStore={this.prefsStore}
+          commanderQuery={query}
+          setSearchTrailing={setSearchTrailing}
+        />
+      ),
     });
 
     host.commands.addPrefix({
@@ -35,8 +43,17 @@ export default class YoutubeModulePlugin extends LumenPlugin {
             id: 'youtube-search-prefix',
             title: `${t('searchFor')} "${query}"`,
             subtitle: t('pressEnter'),
-            component: () => (
-              <YoutubeCommanderApp host={host} prefsStore={this.prefsStore} initialQuery={query} />
+            commanderSearch: {
+              placeholder: t('searchPlaceholder'),
+              initialQuery: query,
+            },
+            component: ({ query: commanderQuery, setSearchTrailing }: CommanderAppProps) => (
+              <YoutubeCommanderApp
+                host={host}
+                prefsStore={this.prefsStore}
+                commanderQuery={commanderQuery}
+                setSearchTrailing={setSearchTrailing}
+              />
             ),
           },
         ];
@@ -56,8 +73,17 @@ export default class YoutubeModulePlugin extends LumenPlugin {
             id: 'yt-search-prefix',
             title: `${t('searchFor')} "${query}"`,
             subtitle: t('pressEnter'),
-            component: () => (
-              <YoutubeCommanderApp host={host} prefsStore={this.prefsStore} initialQuery={query} />
+            commanderSearch: {
+              placeholder: t('searchPlaceholder'),
+              initialQuery: query,
+            },
+            component: ({ query: commanderQuery, setSearchTrailing }: CommanderAppProps) => (
+              <YoutubeCommanderApp
+                host={host}
+                prefsStore={this.prefsStore}
+                commanderQuery={commanderQuery}
+                setSearchTrailing={setSearchTrailing}
+              />
             ),
           },
         ];

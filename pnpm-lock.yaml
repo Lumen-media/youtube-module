@@ -22,11 +22,11 @@ importers:
         specifier: ^2.5.2
         version: 2.5.2
       '@lumen-media/module-cli':
-        specifier: ^0.11.0
-        version: 0.11.0(vite@7.3.6(@types/node@22.20.0))
+        specifier: ^0.11.2
+        version: 0.11.2(vite@7.3.6(@types/node@22.20.0))
       '@lumen-media/module-sdk':
-        specifier: ^0.11.0
-        version: 0.11.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^0.11.2
+        version: 0.11.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@types/node':
         specifier: ^22.0.0
         version: 22.20.0
@@ -262,14 +262,14 @@ packages:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
 
-  '@lumen-media/module-cli@0.11.0':
-    resolution: {integrity: sha512-2Jf/d119uA6rWQ8kFJn/3zQ32XYthCTzYflBp9OLD8bW5uROpqnaa0kb7kLcuhTkpg1vgMaz7nj02jfV0l8erQ==}
+  '@lumen-media/module-cli@0.11.2':
+    resolution: {integrity: sha512-yB+UOtpcYinvZTPULxiqW9vOxz2LiVaMI0G2vzrv4qmeC1KhJVUOC+yvbKGP80axcgvB32M1b3i4ghch1PubZg==}
     hasBin: true
     peerDependencies:
       vite: '>=5'
 
-  '@lumen-media/module-sdk@0.11.0':
-    resolution: {integrity: sha512-2WpToucThu4iYpgzBMDwOnwn2hCPBogG5Wn1j2ztqJ+VCZN6Oz5hC3R845EgX+NEMqUmVV/Ak9TKc+rRbKQ6jQ==}
+  '@lumen-media/module-sdk@0.11.2':
+    resolution: {integrity: sha512-9MSWr+sB1Sr9UNLDG+QV5L6kPNeuzbFYjkJJzpbQlDcbJnxjKsaRkMb4Xxm6gP5JTpAgDiI7Xme60xkeBRaGag==}
     peerDependencies:
       react: '>=19'
       react-dom: '>=19'
@@ -977,7 +977,7 @@ snapshots:
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
-  '@lumen-media/module-cli@0.11.0(vite@7.3.6(@types/node@22.20.0))':
+  '@lumen-media/module-cli@0.11.2(vite@7.3.6(@types/node@22.20.0))':
     dependencies:
       archiver: 7.0.1
       vite: 7.3.6(@types/node@22.20.0)
@@ -986,7 +986,7 @@ snapshots:
       - bare-buffer
       - react-native-b4a
 
-  '@lumen-media/module-sdk@0.11.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@lumen-media/module-sdk@0.11.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)

@@ -1,4 +1,8 @@
-import type { LumenHost } from '@lumen-media/module-sdk';
+import type {
+  CommanderAppProps,
+  CommanderSearchTrailingComponent,
+  LumenHost,
+} from '@lumen-media/module-sdk';
 import { Button, Empty } from '@lumen-media/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PreferencesStore } from '../data/preferences.js';
@@ -7,20 +11,25 @@ import { YoutubeApi } from '../youtube-api.js';
 import type { SearchError, YoutubePreferences, YoutubeVideoResult } from '../youtube-types.js';
 import { makeVideoUrl, parseVideoId } from '../youtube-url.js';
 import { ResultList } from './ResultList.js';
-import { SearchBox } from './SearchBox.js';
 import { SettingsView } from './SettingsView.js';
 
 interface YoutubeCommanderAppProps {
   host: LumenHost;
   prefsStore: PreferencesStore;
-  initialQuery?: string;
+  commanderQuery?: string;
+  setSearchTrailing?: CommanderAppProps['setSearchTrailing'];
 }
 
 type ViewState = 'search' | 'settings';
 
-export function YoutubeCommanderApp({ host, prefsStore, initialQuery }: YoutubeCommanderAppProps) {
+export function YoutubeCommanderApp({
+  host,
+  prefsStore,
+  commanderQuery,
+  setSearchTrailing,
+}: YoutubeCommanderAppProps) {
   const [view, setView] = useState<ViewState>('search');
-  const [query, setQuery] = useState(initialQuery ?? '');
+  const query = commanderQuery ?? '';
   const [results, setResults] = useState<YoutubeVideoResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -33,6 +42,24 @@ export function YoutubeCommanderApp({ host, prefsStore, initialQuery }: YoutubeC
   useEffect(() => {
     apiRef.current = new YoutubeApi(host.net, prefs);
   }, [prefs, host.net]);
+  useEffect(() => {
+    if (!setSearchTrailing) return;
+
+    const SettingsAction: CommanderSearchTrailingComponent = () => (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setView('settings')}
+        style={{ height: 40, width: 40, fontSize: 18 }}
+        aria-label={t('settings')}
+      >
+        ⚙
+      </Button>
+    );
+
+    setSearchTrailing(() => SettingsAction);
+    return () => setSearchTrailing(undefined);
+  }, [setSearchTrailing]);
 
   const doSearch = useCallback(async (q: string) => {
     if (!q.trim()) {
@@ -81,12 +108,6 @@ export function YoutubeCommanderApp({ host, prefsStore, initialQuery }: YoutubeC
       if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     };
   }, [query, doSearch]);
-
-  const handleClearSearch = () => {
-    setQuery('');
-    setResults([]);
-    setError(null);
-  };
 
   const handlePlay = (video: YoutubeVideoResult) => {
     host.ui.notify({ message: t('playingVideo', { title: video.title }) });
@@ -183,31 +204,6 @@ export function YoutubeCommanderApp({ host, prefsStore, initialQuery }: YoutubeC
       onKeyDown={handleKeyDown}
       tabIndex={-1}
     >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          borderBottom: '1px solid var(--border)',
-          flexShrink: 0,
-        }}
-      >
-        <SearchBox
-          value={query}
-          onChange={setQuery}
-          onClear={handleClearSearch}
-          disabled={!hasKey && !loading}
-        />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setView('settings')}
-          style={{ marginRight: 8, fontSize: 18 }}
-          aria-label={t('settings')}
-        >
-          ⚙
-        </Button>
-      </div>
-
       <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
         {loading && (
           <div style={{ padding: 16, textAlign: 'center', color: 'var(--muted-foreground)' }}>
@@ -250,7 +246,7 @@ export function YoutubeCommanderApp({ host, prefsStore, initialQuery }: YoutubeC
           </div>
         )}
 
-        {showEmptyState && hasKey && query.trim() === '' && !initialQuery && (
+        {showEmptyState && hasKey && query.trim() === '' && (
           <div style={{ padding: 16 }}>
             <Empty>
               <Empty.EmptyMedia>🔍</Empty.EmptyMedia>
