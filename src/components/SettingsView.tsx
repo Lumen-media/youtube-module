@@ -1,4 +1,5 @@
-import { Button, Input, Label, Select } from '@lumen-media/ui';
+import { Button, HoverCard, Input, Label, Select } from '@lumen-media/ui';
+import { Info } from 'lucide-react';
 import { useState } from 'react';
 import { t } from '../i18n.js';
 import type { YoutubePreferences } from '../youtube-types.js';
@@ -11,12 +12,14 @@ interface SettingsViewProps {
 
 export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
   const [apiKey, setApiKey] = useState(prefs.apiKey);
+  const [apiKeyBackup, setApiKeyBackup] = useState(prefs.apiKeyBackup);
   const [regionCode, setRegionCode] = useState(prefs.regionCode);
   const [relevanceLanguage, setRelevanceLanguage] = useState(prefs.relevanceLanguage);
   const [safeSearch, setSafeSearch] = useState(prefs.safeSearch);
   const [defaultAction, setDefaultAction] = useState(prefs.defaultAction);
   const [maxResults, setMaxResults] = useState(prefs.maxResults);
   const [visible, setVisible] = useState(false);
+  const [showBackup, setShowBackup] = useState(!!prefs.apiKeyBackup);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -24,6 +27,7 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
     try {
       await onSave({
         apiKey,
+        apiKeyBackup,
         regionCode,
         relevanceLanguage,
         safeSearch,
@@ -37,19 +41,46 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
   };
 
   const maskedKey = apiKey ? `${apiKey.slice(0, 4)}••••${apiKey.slice(-4)}` : '';
+  const autofillProps = {
+    autoComplete: 'off',
+    autoCorrect: 'off' as const,
+    spellCheck: false,
+    'data-1p-ignore': 'true',
+    'data-lpignore': 'true',
+  };
 
   return (
     <div className="p-4 flex flex-col gap-4">
       <h2 className="text-base font-semibold m-0">{t('settingsTitle')}</h2>
 
       <div className="flex flex-col gap-1">
-        <Label>{t('apiKeyLabel')}</Label>
+        <div className="flex items-center gap-1.5">
+          <Label>{t('apiKeyLabel')}</Label>
+          <HoverCard>
+            <HoverCard.HoverCardTrigger className="cursor-help inline-flex items-center">
+              <Info size={14} className="text-muted-foreground" aria-hidden="true" />
+            </HoverCard.HoverCardTrigger>
+            <HoverCard.HoverCardContent
+              side="top"
+              sideOffset={4}
+              className="max-w-72 text-xs leading-relaxed"
+            >
+              {t('apiKeyBackupHint')}
+            </HoverCard.HoverCardContent>
+          </HoverCard>
+        </div>
         <div className="flex gap-2 items-center">
           <Input
             type={visible ? 'text' : 'password'}
             value={apiKey}
             onChange={(e) => setApiKey(e.currentTarget.value)}
             placeholder={t('apiKeyPlaceholder')}
+            autoComplete="new-password"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            data-1p-ignore="true"
+            data-lpignore="true"
             className="flex-1 font-mono"
           />
           <Button variant="ghost" size="sm" onClick={() => setVisible(!visible)}>
@@ -59,8 +90,63 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
         {apiKey && !visible && (
           <span className="text-xs text-muted-foreground font-mono">{maskedKey}</span>
         )}
-        <p className="text-xs text-muted-foreground mt-0.5 mb-0">{t('apiKeyHint')}</p>
+        <p className="text-xs text-muted-foreground mt-0.5 mb-0">
+          <a
+            href="https://console.cloud.google.com/apis/credentials"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-foreground"
+          >
+            {t('getKey')}
+          </a>
+          . {t('apiKeyHint')}
+        </p>
       </div>
+
+      {showBackup ? (
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1.5">
+            <Label>{t('apiKeyBackupLabel')}</Label>
+            <button
+              type="button"
+              className="ml-auto text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                setShowBackup(false);
+                setApiKeyBackup('');
+              }}
+            >
+              {t('remove')}
+            </button>
+          </div>
+          <Input
+            type={visible ? 'text' : 'password'}
+            value={apiKeyBackup}
+            onChange={(e) => setApiKeyBackup(e.currentTarget.value)}
+            placeholder={t('apiKeyBackupPlaceholder')}
+            autoComplete="new-password"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            data-1p-ignore="true"
+            data-lpignore="true"
+            className="flex-1 font-mono"
+          />
+          {apiKeyBackup && !visible && (
+            <span className="text-xs text-muted-foreground font-mono">
+              {apiKeyBackup.slice(0, 4)}••••{apiKeyBackup.slice(-4)}
+            </span>
+          )}
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground self-start"
+          onClick={() => setShowBackup(true)}
+        >
+          <span className="text-xs">+</span>
+          {t('addBackupKey')}
+        </button>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
@@ -70,7 +156,9 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
             onChange={(e) => setRegionCode(e.currentTarget.value.toUpperCase())}
             placeholder="BR"
             maxLength={2}
+            autoCapitalize="characters"
             className="w-full"
+            {...autofillProps}
           />
         </div>
 
@@ -81,7 +169,9 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
             onChange={(e) => setRelevanceLanguage(e.currentTarget.value)}
             placeholder="pt"
             maxLength={2}
+            autoCapitalize="none"
             className="w-full"
+            {...autofillProps}
           />
         </div>
 
@@ -112,6 +202,7 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
               <Select.SelectValue />
             </Select.SelectTrigger>
             <Select.SelectContent>
+              <Select.SelectItem value="5">5</Select.SelectItem>
               <Select.SelectItem value="10">10</Select.SelectItem>
               <Select.SelectItem value="25">25</Select.SelectItem>
               <Select.SelectItem value="50">50</Select.SelectItem>
