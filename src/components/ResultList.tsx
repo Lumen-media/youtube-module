@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { useEffect } from 'react';
 import type { YoutubeVideoResult } from '../youtube-types.js';
 import { ResultRow } from './ResultRow.js';
 
@@ -6,6 +7,7 @@ interface ResultListProps {
   results: YoutubeVideoResult[];
   selectedIndex: number;
   onSelectIndex: (index: number) => void;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
   onPlay: (video: YoutubeVideoResult) => void;
   onAddToQueue: (video: YoutubeVideoResult) => void;
   onAddNext: (video: YoutubeVideoResult) => void;
@@ -18,6 +20,7 @@ export function ResultList({
   results,
   selectedIndex,
   onSelectIndex,
+  scrollRef,
   onPlay,
   onAddToQueue,
   onAddNext,
@@ -25,36 +28,55 @@ export function ResultList({
   onOpenExternal,
   onCopyUrl,
 }: ResultListProps) {
-  const listRef = useRef<HTMLDivElement>(null);
-
-  const scrollToIndex = useCallback((index: number) => {
-    const el = listRef.current?.querySelector(`[data-index="${index}"]`);
-    el?.scrollIntoView({ block: 'nearest' });
-  }, []);
+  const virtualizer = useVirtualizer({
+    count: results.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 88,
+    overscan: 5,
+  });
 
   useEffect(() => {
-    scrollToIndex(selectedIndex);
-  }, [selectedIndex, scrollToIndex]);
+    virtualizer.scrollToIndex(selectedIndex, { align: 'nearest' });
+  }, [selectedIndex, virtualizer]);
 
   if (results.length === 0) return null;
 
   return (
-    <div ref={listRef} role="listbox" aria-label="Search results" className="py-1">
-      {results.map((video, index) => (
-        <ResultRow
-          key={video.videoId}
-          video={video}
-          selected={index === selectedIndex}
-          onSelect={() => onSelectIndex(index)}
-          onPlay={() => onPlay(video)}
-          onAddToQueue={() => onAddToQueue(video)}
-          onAddNext={() => onAddNext(video)}
-          onAddToLibrary={() => onAddToLibrary(video)}
-          onOpenExternal={() => onOpenExternal(video)}
-          onCopyUrl={() => onCopyUrl(video)}
-          index={index}
-        />
-      ))}
+    <div
+      style={{
+        height: `${virtualizer.getTotalSize()}px`,
+        position: 'relative',
+      }}
+    >
+      {virtualizer.getVirtualItems().map((virtualItem) => {
+        const video = results[virtualItem.index];
+        return (
+          <div
+            key={virtualItem.key}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: `${virtualItem.size}px`,
+              transform: `translateY(${virtualItem.start}px)`,
+            }}
+          >
+            <ResultRow
+              video={video}
+              selected={virtualItem.index === selectedIndex}
+              onSelect={() => onSelectIndex(virtualItem.index)}
+              onPlay={() => onPlay(video)}
+              onAddToQueue={() => onAddToQueue(video)}
+              onAddNext={() => onAddNext(video)}
+              onAddToLibrary={() => onAddToLibrary(video)}
+              onOpenExternal={() => onOpenExternal(video)}
+              onCopyUrl={() => onCopyUrl(video)}
+              index={virtualItem.index}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }

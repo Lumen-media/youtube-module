@@ -76,6 +76,7 @@ function YoutubeCommanderInner({
   const [prefs, setPrefs] = useState<YoutubePreferences>(prefsStore.get());
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const api = useMemo(() => new YoutubeApi(host.net, prefs), [host.net, prefs]);
   const [debouncedQuery] = useDebounceValue(query, 400);
@@ -114,6 +115,7 @@ function YoutubeCommanderInner({
 
   useEffect(() => {
     const el = sentinelRef.current;
+    const container = scrollRef.current;
     if (!el || !searchResult.hasNextPage) return;
 
     const observer = new IntersectionObserver(
@@ -122,7 +124,7 @@ function YoutubeCommanderInner({
           searchResult.fetchNextPage();
         }
       },
-      { rootMargin: '300px' }
+      { root: container, rootMargin: '300px' }
     );
 
     observer.observe(el);
@@ -321,11 +323,15 @@ function YoutubeCommanderInner({
         )}
 
         {!isOffline && !searchResult.isLoading && !searchResult.error && results.length > 0 && (
-          <ScrollArea className="flex flex-col max-h-[400px] focus-visible:ring-0 focus-visible:outline-none">
+          <ScrollArea
+            ref={scrollRef}
+            className="flex flex-col max-h-[400px] custom-scrollbar"
+          >
             <ResultList
               results={results}
               selectedIndex={selectedIndex}
               onSelectIndex={setSelectedIndex}
+              scrollRef={scrollRef}
               onPlay={handlePlay}
               onAddToQueue={handleAddToQueue}
               onAddNext={handleAddNext}
