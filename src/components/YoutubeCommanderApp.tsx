@@ -12,11 +12,10 @@ import {
   Inbox,
   Key,
   Loader,
-  Search,
   Settings2,
   TriangleAlert,
   Video,
-  WifiOff,
+  WifiOff
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebounceValue, useEventListener } from 'usehooks-ts';
@@ -24,15 +23,24 @@ import type { PreferencesStore } from '../data/preferences.js';
 import { useYoutubeSearch } from '../hooks/useYoutubeSearch.js';
 import { t } from '../i18n.js';
 import { YoutubeApi } from '../youtube-api.js';
+import { YoutubeLogoIcon } from './YoutubeLogoIcon.js';
 import type { SearchError, YoutubePreferences, YoutubeVideoResult } from '../youtube-types.js';
 import { ResultList } from './ResultList.js';
 import { SettingsView } from './SettingsView.js';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000, retry: 1 },
+  },
+});
+let lastSearchQuery = '';
 
 interface YoutubeCommanderAppProps {
   host: LumenHost;
   prefsStore: PreferencesStore;
   commanderQuery?: string;
   setSearchTrailing?: CommanderAppProps['setSearchTrailing'];
+  setQuery?: CommanderAppProps['setQuery'];
 }
 
 type ViewState = 'search' | 'settings';
@@ -42,16 +50,8 @@ export function YoutubeCommanderApp({
   prefsStore,
   commanderQuery,
   setSearchTrailing,
+  setQuery,
 }: YoutubeCommanderAppProps) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: { staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000, retry: 1 },
-        },
-      })
-  );
-
   return (
     <QueryClientProvider client={queryClient}>
       <YoutubeCommanderInner
@@ -59,6 +59,7 @@ export function YoutubeCommanderApp({
         prefsStore={prefsStore}
         commanderQuery={commanderQuery}
         setSearchTrailing={setSearchTrailing}
+        setQuery={setQuery}
       />
     </QueryClientProvider>
   );
@@ -69,6 +70,7 @@ function YoutubeCommanderInner({
   prefsStore,
   commanderQuery,
   setSearchTrailing,
+  setQuery,
 }: YoutubeCommanderAppProps) {
   const [view, setView] = useState<ViewState>('search');
   const query = commanderQuery ?? '';
@@ -86,6 +88,19 @@ function YoutubeCommanderInner({
 
   const api = useMemo(() => new YoutubeApi(host.net, prefs), [host.net, prefs]);
   const [debouncedQuery] = useDebounceValue(query, 400);
+
+  const isFirstMount = useRef(true);
+  useEffect(() => {
+    if (!isFirstMount.current) return;
+    isFirstMount.current = false;
+    if (!commanderQuery && lastSearchQuery && setQuery) {
+      setQuery(lastSearchQuery);
+    }
+  }, [commanderQuery, setQuery]);
+
+  useEffect(() => {
+    if (debouncedQuery) lastSearchQuery = debouncedQuery;
+  }, [debouncedQuery]);
 
   useEventListener('online', () => setIsOffline(false));
   useEventListener('offline', () => setIsOffline(true));
@@ -203,7 +218,7 @@ function YoutubeCommanderInner({
     [prefs.defaultAction, handleAddToQueue, handlePlay]
   );
 
-  const handleKeyDownRef = useRef<(e: KeyboardEvent) => void>(() => {});
+  const handleKeyDownRef = useRef<(e: KeyboardEvent) => void>(() => { });
   handleKeyDownRef.current = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       const tag = document.activeElement?.tagName;
@@ -337,7 +352,12 @@ function YoutubeCommanderInner({
         )}
 
         {!isOffline && searchResult.isLoading && (
-          <div className="p-4 text-center text-muted-foreground">{t('searching')}</div>
+          <div className="flex h-full min-h-[260px] items-center justify-center p-6">
+            <div className="flex flex-col items-center gap-3 text-muted-foreground">
+              <Loader size={24} className="animate-spin" aria-hidden="true" />
+              <span className="text-sm">{t('searching')}</span>
+            </div>
+          </div>
         )}
 
         {!isOffline && searchResult.error && !searchResult.isLoading && (
@@ -412,10 +432,10 @@ function YoutubeCommanderInner({
         )}
 
         {showEmptyState && hasKey && debouncedQuery.trim() === '' && (
-          <div className="p-4">
-            <Empty>
-              <Empty.EmptyMedia>
-                <Search size={24} aria-hidden="true" />
+          <div className="flex h-full min-h-[260px] items-center justify-center p-6">
+            <Empty className='gap-2'>
+              <Empty.EmptyMedia className='mb-0'>
+                <YoutubeLogoIcon size={28} />
               </Empty.EmptyMedia>
               <Empty.EmptyHeader>
                 <Empty.EmptyTitle>{t('searchReady')}</Empty.EmptyTitle>
