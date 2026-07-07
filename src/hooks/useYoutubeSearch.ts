@@ -4,8 +4,6 @@ import type { YoutubeApi } from '../youtube-api.js';
 import type { SearchError, YoutubeVideoResult } from '../youtube-types.js';
 import { makeVideoUrl, parseVideoId } from '../youtube-url.js';
 
-const MAX_AUTO_PAGES = 5;
-
 export interface UseYoutubeSearchResult {
   results: YoutubeVideoResult[];
   error: SearchError | null;
@@ -14,8 +12,6 @@ export interface UseYoutubeSearchResult {
   isFetchingNextPage: boolean;
   fetchNextPage: () => void;
   hasNextPage: boolean;
-  showLoadMore: boolean;
-  totalPages: number;
 }
 
 export function useYoutubeSearch(
@@ -67,10 +63,6 @@ export function useYoutubeSearch(
     });
   }, [directResult, queryResult.data?.pages]);
 
-  const totalPages = queryResult.data?.pages.length ?? 0;
-  const hasNextPage = !!queryResult.hasNextPage && totalPages < MAX_AUTO_PAGES;
-  const showLoadMore = !!queryResult.hasNextPage && totalPages >= MAX_AUTO_PAGES;
-
   return {
     results,
     error: (queryResult.error as unknown as SearchError) ?? null,
@@ -78,8 +70,6 @@ export function useYoutubeSearch(
     isFetching: queryResult.isFetching,
     isFetchingNextPage: queryResult.isFetchingNextPage,
     fetchNextPage: queryResult.fetchNextPage,
-    hasNextPage,
-    showLoadMore,
-    totalPages,
+    hasNextPage: !!queryResult.hasNextPage,
   };
 }

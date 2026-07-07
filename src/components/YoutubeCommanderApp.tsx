@@ -91,7 +91,6 @@ function YoutubeCommanderInner({
   }, []);
   const [prefs, setPrefs] = useState<YoutubePreferences>(prefsStore.get());
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
-  const sentinelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const shouldScrollRef = useRef(false);
 
@@ -169,24 +168,6 @@ function YoutubeCommanderInner({
     setSearchTrailing(() => SettingsAction);
     return () => setSearchTrailing(undefined);
   }, [setSearchTrailing, view]);
-
-  useEffect(() => {
-    const el = sentinelRef.current;
-    const container = scrollRef.current;
-    if (!el || !searchResult.hasNextPage) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          searchResult.fetchNextPage();
-        }
-      },
-      { root: container, rootMargin: '300px' }
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [searchResult.hasNextPage, searchResult.fetchNextPage]);
 
   const handlePlay = useCallback(
     (video: YoutubeVideoResult) => {
@@ -429,14 +410,7 @@ function YoutubeCommanderInner({
               </div>
             )}
 
-            <div
-              ref={sentinelRef}
-              className={
-                !searchResult.isFetchingNextPage && searchResult.hasNextPage ? 'h-px' : 'hidden'
-              }
-            />
-
-            {searchResult.showLoadMore && (
+            {searchResult.hasNextPage && (
               <div className="py-3 text-center">
                 <Button
                   variant="outline"
