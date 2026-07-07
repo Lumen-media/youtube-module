@@ -32,6 +32,8 @@ const queryClient = new QueryClient({
   },
 });
 let lastSearchQuery = '';
+let notifyKey = '';
+let notifyTimer: ReturnType<typeof setTimeout> | undefined;
 
 type CommanderBackHandler = () => boolean | undefined | Promise<boolean | undefined>;
 type CommanderBackHandlerSetter = Dispatch<SetStateAction<CommanderBackHandler | undefined>>;
@@ -89,15 +91,13 @@ function YoutubeCommanderInner({
     selectedIndexRef.current = index;
     setSelectedIndex(index);
   }, []);
-  const lastToastRef = useRef('');
-  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const notify = useCallback((message: string, opts?: Record<string, unknown>) => {
     const key = opts?.id ? String(opts.id) : message;
-    if (key === lastToastRef.current) return;
-    lastToastRef.current = key;
-    clearTimeout(toastTimeoutRef.current);
-    toastTimeoutRef.current = setTimeout(() => {
-      if (lastToastRef.current === key) lastToastRef.current = '';
+    if (key === notifyKey) return;
+    notifyKey = key;
+    clearTimeout(notifyTimer);
+    notifyTimer = setTimeout(() => {
+      if (notifyKey === key) notifyKey = '';
     }, 3000);
     host.ui.notify({ message, ...opts });
   }, [host]);
