@@ -2,7 +2,11 @@
 
 A [Lumen](https://github.com/Lumen-media/lumen) module for searching YouTube videos directly from the Commander. Search, preview, and add videos to your queue, library, or play them without leaving the app.
 
-![screenshot-placeholder-main]()
+<!-- Screenshots — replace the paths once you have the images:
+  ![Main search view](./screenshots/main.png)
+  ![Google Cloud Console](./screenshots/google-console.png)
+  ![Settings](./screenshots/settings.png)
+-->
 
 ## Getting a YouTube API Key
 
@@ -17,9 +21,7 @@ This module requires a **YouTube Data API v3 key** to function. The key belongs 
 4. Create an API key:
    - Go to **APIs & Services > Credentials**
    - Click **Create Credentials > API Key**
-   - Copy the generated key
-
-![screenshot-placeholder-google-console]()
+    - Copy the generated key
 
 ## Configuration
 
@@ -30,9 +32,7 @@ This module requires a **YouTube Data API v3 key** to function. The key belongs 
    - **Language** (e.g., `pt`)
    - **Safe Search** (None / Moderate / Strict)
    - **Max Results** (10 / 25 / 50)
-   - **Default Action** (Add to Queue / Play Now)
-
-![screenshot-placeholder-settings]()
+    - **Default Action** (Add to Queue / Play Now)
 
 ## Usage
 
@@ -71,19 +71,55 @@ Paste a YouTube URL (`youtube.com/watch`, `youtu.be`, `shorts`, `embed`) into th
 | Quota exceeded | Shows warning, cached results remain available |
 | Offline / Network error | Shows retry button |
 
+## Architecture
+
+```
+src/
+├── main.tsx                  # Plugin entry — registers commands, prefixes, menu
+├── youtube-api.ts            # YouTube Data API v3 client with key rotation
+├── youtube-types.ts          # Shared types (responses, preferences, errors)
+├── youtube-url.ts            # URL parsing / generation helpers
+├── i18n.ts                   # Translation setup
+├── data/preferences.ts       # Persistent preferences store
+├── hooks/useYoutubeSearch.ts # React Query wrapper for search
+├── components/
+│   ├── YoutubeCommanderApp   # Root Commander app (search + settings views)
+│   ├── ResultList            # Virtualized results list
+│   ├── ResultRow             # Single result row with thumbnail + metadata
+│   ├── SettingsView          # API key + preferences form
+│   └── YoutubeLogoIcon       # YouTube SVG icon
+└── i18n/
+    ├── en.ts                 # English (default)
+    └── pt-BR.ts              # Brazilian Portuguese
+```
+
+## Internationalization
+
+The module uses a custom lightweight i18n system. To add a new locale:
+
+1. Create `src/i18n/<locale>.ts` exporting a `Record<string, string>` with all keys from `en.ts`
+2. Import it in `src/i18n.ts` and add it to the `_translations` map
+
+The active locale is automatically set from `host.app.locale` on load.
+
 ## Develop
 
 ```bash
 pnpm install
+pnpm dev          # watch mode — rebuilds on file changes
 pnpm build        # bundles into dist/
 pnpm pack         # creates {id}-{version}.lumenpack in dist/
 pnpm validate     # schema-checks manifest.json
+pnpm lint         # biome check — lint & format src/
+pnpm format       # biome format — format src/
 ```
 
 ## Publish
 
 1. Create a GitHub release on this repo with tag `vX.Y.Z` and attach the `.lumenpack` as a release asset.
 2. Open a PR against [Lumen-media/community-modules](https://github.com/Lumen-media/community-modules) adding an entry to `modules.json` that points at this repo.
+
+> The `.github/workflows/release.yml` workflow automates version bumping, building, packing, and creating the release — just trigger it from the Actions tab.
 
 ## License
 

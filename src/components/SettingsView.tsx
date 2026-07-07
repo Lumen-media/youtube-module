@@ -262,7 +262,3 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
     </div>
   );
 }
-
-
-
-

@@ -86,14 +86,12 @@ export class YoutubeApi {
     makeRequest: (key: string) => Promise<NetResponse<T>>
   ): Promise<T> {
     const keys = this.assertKeys();
-    let lastError: unknown;
 
     for (const key of keys) {
       try {
         const res = await makeRequest(key);
         if (this.isQuotaError(res)) {
           this.demoteKey(key);
-          lastError = { status: res.status, data: res.data };
           continue;
         }
         if (!res.ok) {
@@ -114,7 +112,6 @@ export class YoutubeApi {
             : undefined;
         if (status === 429 || status === 403) {
           this.demoteKey(key);
-          lastError = err;
           continue;
         }
         const msg = err instanceof Error ? err.message : 'Unknown error';

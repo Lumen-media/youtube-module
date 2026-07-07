@@ -1,5 +1,5 @@
-import { type Dispatch, type SetStateAction } from 'react';
 import { type CommanderAppProps, type LumenHost, LumenPlugin } from '@lumen-media/module-sdk';
+import type { Dispatch, SetStateAction } from 'react';
 import { YoutubeCommanderApp } from './components/YoutubeCommanderApp.js';
 import { YoutubeLogoIcon } from './components/YoutubeLogoIcon.js';
 import { PreferencesStore } from './data/preferences.js';
@@ -64,7 +64,13 @@ export default class YoutubeModulePlugin extends LumenPlugin {
               placeholder: t('searchPlaceholder'),
               initialQuery: query,
             },
-            component: ({ query: commanderQuery, onBack, setSearchTrailing, setQuery, ...rest }: CommanderAppProps) => (
+            component: ({
+              query: commanderQuery,
+              onBack,
+              setSearchTrailing,
+              setQuery,
+              ...rest
+            }: CommanderAppProps) => (
               <YoutubeCommanderApp
                 host={host}
                 prefsStore={this.prefsStore}
@@ -97,7 +103,13 @@ export default class YoutubeModulePlugin extends LumenPlugin {
               placeholder: t('searchPlaceholder'),
               initialQuery: query,
             },
-            component: ({ query: commanderQuery, onBack, setSearchTrailing, setQuery, ...rest }: CommanderAppProps) => (
+            component: ({
+              query: commanderQuery,
+              onBack,
+              setSearchTrailing,
+              setQuery,
+              ...rest
+            }: CommanderAppProps) => (
               <YoutubeCommanderApp
                 host={host}
                 prefsStore={this.prefsStore}
@@ -132,10 +144,3 @@ export default class YoutubeModulePlugin extends LumenPlugin {
     this.styleEl = null;
   }
 }
-
-
-
-
-
-
-

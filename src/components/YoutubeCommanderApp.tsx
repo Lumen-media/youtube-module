@@ -13,18 +13,27 @@ import {
   Key,
   Loader,
   Settings2,
-  TriangleAlert, WifiOff
+  TriangleAlert,
+  WifiOff,
 } from 'lucide-react';
-import { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useDebounceValue, useEventListener } from 'usehooks-ts';
 import type { PreferencesStore } from '../data/preferences.js';
 import { useYoutubeSearch } from '../hooks/useYoutubeSearch.js';
 import { t } from '../i18n.js';
 import { YoutubeApi } from '../youtube-api.js';
-import { YoutubeLogoIcon } from './YoutubeLogoIcon.js';
 import type { SearchError, YoutubePreferences, YoutubeVideoResult } from '../youtube-types.js';
 import { ResultList } from './ResultList.js';
 import { SettingsView } from './SettingsView.js';
+import { YoutubeLogoIcon } from './YoutubeLogoIcon.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -91,16 +100,19 @@ function YoutubeCommanderInner({
     selectedIndexRef.current = index;
     setSelectedIndex(index);
   }, []);
-  const notify = useCallback((message: string, opts?: Record<string, unknown>) => {
-    const key = opts?.id ? String(opts.id) : message;
-    if (key === notifyKey) return;
-    notifyKey = key;
-    clearTimeout(notifyTimer);
-    notifyTimer = setTimeout(() => {
-      if (notifyKey === key) notifyKey = '';
-    }, 3000);
-    host.ui.notify({ message, ...opts });
-  }, [host]);
+  const notify = useCallback(
+    (message: string, opts?: Record<string, unknown>) => {
+      const key = opts?.id ? String(opts.id) : message;
+      if (key === notifyKey) return;
+      notifyKey = key;
+      clearTimeout(notifyTimer);
+      notifyTimer = setTimeout(() => {
+        if (notifyKey === key) notifyKey = '';
+      }, 3000);
+      host.ui.notify({ message, ...opts });
+    },
+    [host]
+  );
 
   const [prefs, setPrefs] = useState<YoutubePreferences>(prefsStore.get());
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -197,7 +209,7 @@ function YoutubeCommanderInner({
       }
       notify(t('addedToQueue', { title: video.title }), { id: `queue:${video.videoId}` });
     },
-    [host]
+    [host, notify]
   );
 
   const handleAddNext = useCallback(
@@ -208,7 +220,7 @@ function YoutubeCommanderInner({
       }
       notify(t('addedNext', { title: video.title }), { id: `next:${video.videoId}` });
     },
-    [host]
+    [host, notify]
   );
 
   const handleAddToLibrary = useCallback(
@@ -219,7 +231,7 @@ function YoutubeCommanderInner({
       }
       notify(t('addedToLibrary', { title: video.title }), { id: `library:${video.videoId}` });
     },
-    [host]
+    [host, notify]
   );
 
   const handleOpenExternal = useCallback((video: YoutubeVideoResult) => {
@@ -235,7 +247,7 @@ function YoutubeCommanderInner({
         notify(t('copyFailed'), { level: 'error', id: 'copy-failed' });
       }
     },
-    [host]
+    [notify]
   );
 
   const handlePrimaryAction = useCallback(
@@ -260,7 +272,7 @@ function YoutubeCommanderInner({
     [prefs.defaultAction, handlePlay, handleAddToLibrary]
   );
 
-  const handleKeyDownRef = useRef<(e: KeyboardEvent) => void>(() => { });
+  const handleKeyDownRef = useRef<(e: KeyboardEvent) => void>(() => {});
   handleKeyDownRef.current = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       const tag = document.activeElement?.tagName;
@@ -452,8 +464,8 @@ function YoutubeCommanderInner({
 
         {showEmptyState && !hasKey && (
           <div className="flex h-full min-h-[260px] items-center justify-center p-6">
-            <Empty className='gap-2'>
-              <Empty.EmptyMedia className='mb-0'>
+            <Empty className="gap-2">
+              <Empty.EmptyMedia className="mb-0">
                 <YoutubeLogoIcon size={28} />
               </Empty.EmptyMedia>
               <Empty.EmptyHeader>
@@ -469,8 +481,8 @@ function YoutubeCommanderInner({
 
         {showEmptyState && hasKey && debouncedQuery.trim() === '' && (
           <div className="flex h-full min-h-[260px] items-center justify-center p-6">
-            <Empty className='gap-2'>
-              <Empty.EmptyMedia className='mb-0'>
+            <Empty className="gap-2">
+              <Empty.EmptyMedia className="mb-0">
                 <YoutubeLogoIcon size={28} />
               </Empty.EmptyMedia>
               <Empty.EmptyHeader>
@@ -581,11 +593,3 @@ function ErrorState({ error, onOpenSettings }: { error: SearchError; onOpenSetti
       );
   }
 }
-
-
-
-
-
-
-
-

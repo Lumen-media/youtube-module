@@ -1,10 +1,4 @@
-export function YoutubeLogoIcon({
-  size = 24,
-  className,
-}: {
-  size?: number;
-  className?: string;
-}) {
+export function YoutubeLogoIcon({ size = 24, className }: { size?: number; className?: string }) {
   return (
     <svg
       width={size}
