@@ -182,7 +182,7 @@ function YoutubeCommanderInner({
       if (typeof q.addUrl === 'function') {
         q.addUrl({ url: video.url, position: 'end' });
       }
-      host.ui.notify({ message: t('addedToQueue', { title: video.title }) });
+      host.ui.notify({ message: t('addedToQueue', { title: video.title }), id: `queue:${video.videoId}` });
     },
     [host]
   );
@@ -193,7 +193,7 @@ function YoutubeCommanderInner({
       if (typeof q.addUrl === 'function') {
         q.addUrl({ url: video.url, position: 'next' });
       }
-      host.ui.notify({ message: t('addedNext', { title: video.title }) });
+      host.ui.notify({ message: t('addedNext', { title: video.title }), id: `next:${video.videoId}` });
     },
     [host]
   );
@@ -204,7 +204,7 @@ function YoutubeCommanderInner({
       if (typeof lib.addUrl === 'function') {
         lib.addUrl({ url: video.url });
       }
-      host.ui.notify({ message: t('addedToLibrary', { title: video.title }) });
+      host.ui.notify({ message: t('addedToLibrary', { title: video.title }), id: `library:${video.videoId}` });
     },
     [host]
   );
@@ -217,9 +217,9 @@ function YoutubeCommanderInner({
     async (video: YoutubeVideoResult) => {
       try {
         await navigator.clipboard.writeText(video.url);
-        host.ui.notify({ message: t('copiedUrl') });
+        host.ui.notify({ message: t('copiedUrl'), id: 'copy-url' });
       } catch {
-        host.ui.notify({ message: t('copyFailed'), level: 'error' });
+        host.ui.notify({ message: t('copyFailed'), level: 'error', id: 'copy-failed' });
       }
     },
     [host]
@@ -234,6 +234,17 @@ function YoutubeCommanderInner({
       }
     },
     [prefs.defaultAction, handleAddToQueue, handlePlay]
+  );
+
+  const handleCtrlEnter = useCallback(
+    (video: YoutubeVideoResult) => {
+      if (prefs.defaultAction === 'addToQueue') {
+        handlePlay(video);
+      } else {
+        handleAddToLibrary(video);
+      }
+    },
+    [prefs.defaultAction, handlePlay, handleAddToLibrary]
   );
 
   const handleKeyDownRef = useRef<(e: KeyboardEvent) => void>(() => { });
@@ -283,7 +294,7 @@ function YoutubeCommanderInner({
       if (e.shiftKey) {
         handleAddToQueue(video);
       } else if (e.ctrlKey || e.metaKey) {
-        handleAddToLibrary(video);
+        handleCtrlEnter(video);
       } else {
         handlePrimaryAction(video);
       }
@@ -400,6 +411,7 @@ function YoutubeCommanderInner({
               onAddToQueue={handleAddToQueue}
               onAddNext={handleAddNext}
               onAddToLibrary={handleAddToLibrary}
+              onCtrlEnter={handleCtrlEnter}
               onOpenExternal={handleOpenExternal}
               onCopyUrl={handleCopyUrl}
             />

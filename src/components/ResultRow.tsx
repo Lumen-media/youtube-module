@@ -11,6 +11,7 @@ interface ResultRowProps {
   onAddToQueue: () => void;
   onAddNext: () => void;
   onAddToLibrary: () => void;
+  onCtrlEnter: () => void;
   onOpenExternal: () => void;
   onCopyUrl: () => void;
   index: number;
@@ -49,6 +50,7 @@ export function ResultRow({
   onAddToQueue,
   onAddNext,
   onAddToLibrary,
+  onCtrlEnter,
   onOpenExternal,
   onCopyUrl,
   index,
@@ -60,7 +62,7 @@ export function ResultRow({
       if (e.shiftKey) {
         onAddToQueue();
       } else if (e.ctrlKey || e.metaKey) {
-        onAddToLibrary();
+        onCtrlEnter();
       } else {
         onPrimaryAction();
       }

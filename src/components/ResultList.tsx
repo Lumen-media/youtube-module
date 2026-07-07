@@ -13,6 +13,7 @@ interface ResultListProps {
   onAddToQueue: (video: YoutubeVideoResult) => void;
   onAddNext: (video: YoutubeVideoResult) => void;
   onAddToLibrary: (video: YoutubeVideoResult) => void;
+  onCtrlEnter: (video: YoutubeVideoResult) => void;
   onOpenExternal: (video: YoutubeVideoResult) => void;
   onCopyUrl: (video: YoutubeVideoResult) => void;
 }
@@ -27,6 +28,7 @@ export function ResultList({
   onAddToQueue,
   onAddNext,
   onAddToLibrary,
+  onCtrlEnter,
   onOpenExternal,
   onCopyUrl,
 }: ResultListProps) {
@@ -82,6 +84,7 @@ export function ResultList({
               onAddToQueue={() => onAddToQueue(video)}
               onAddNext={() => onAddNext(video)}
               onAddToLibrary={() => onAddToLibrary(video)}
+              onCtrlEnter={() => onCtrlEnter(video)}
               onOpenExternal={() => onOpenExternal(video)}
               onCopyUrl={() => onCopyUrl(video)}
               index={virtualItem.index}
