@@ -95,9 +95,9 @@ function YoutubeCommanderInner({
   const results = searchResult.results;
 
   useEffect(() => {
-    if (isOffline) return;
+    if (isOffline || debouncedQuery.trim() === '') return;
     handleSelectIndex(0);
-  }, [debouncedQuery, isOffline]);
+  }, [debouncedQuery, isOffline, handleSelectIndex]);
 
   useEffect(() => {
     if (!setSearchTrailing) return;
@@ -138,15 +138,7 @@ function YoutubeCommanderInner({
 
   const handlePlay = useCallback(
     (video: YoutubeVideoResult) => {
-      const q = host.queue as unknown as Record<string, unknown>;
-      if (typeof q.addUrl === 'function') {
-        q.addUrl({ url: video.url, position: 'end' });
-      }
-      const state = host.queue.state();
-      const lastIdx = state.items.length - 1;
-      if (lastIdx >= 0) {
-        host.queue.goTo(lastIdx);
-      }
+      host.player.play(video.url);
     },
     [host]
   );
@@ -367,7 +359,6 @@ function YoutubeCommanderInner({
               scrollRef={scrollRef}
               shouldScrollRef={shouldScrollRef}
               onPrimaryAction={handlePrimaryAction}
-              onPlay={handlePlay}
               onAddToQueue={handleAddToQueue}
               onAddNext={handleAddNext}
               onAddToLibrary={handleAddToLibrary}

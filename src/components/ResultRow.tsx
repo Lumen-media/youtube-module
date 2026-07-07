@@ -8,7 +8,6 @@ interface ResultRowProps {
   selected: boolean;
   onSelect: () => void;
   onPrimaryAction: () => void;
-  onPlay: () => void;
   onAddToQueue: () => void;
   onAddNext: () => void;
   onAddToLibrary: () => void;
@@ -47,7 +46,6 @@ export function ResultRow({
   selected,
   onSelect,
   onPrimaryAction,
-  onPlay,
   onAddToQueue,
   onAddNext,
   onAddToLibrary,
@@ -64,7 +62,7 @@ export function ResultRow({
       } else if (e.ctrlKey || e.metaKey) {
         onAddToLibrary();
       } else {
-        onPlay();
+        onPrimaryAction();
       }
       return;
     }
