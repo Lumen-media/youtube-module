@@ -13,11 +13,9 @@ import {
   Key,
   Loader,
   Settings2,
-  TriangleAlert,
-  Video,
-  WifiOff
+  TriangleAlert, WifiOff
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebounceValue, useEventListener } from 'usehooks-ts';
 import type { PreferencesStore } from '../data/preferences.js';
 import { useYoutubeSearch } from '../hooks/useYoutubeSearch.js';
@@ -35,10 +33,15 @@ const queryClient = new QueryClient({
 });
 let lastSearchQuery = '';
 
+type CommanderBackHandler = () => boolean | undefined | Promise<boolean | undefined>;
+type CommanderBackHandlerSetter = Dispatch<SetStateAction<CommanderBackHandler | undefined>>;
+
 interface YoutubeCommanderAppProps {
   host: LumenHost;
   prefsStore: PreferencesStore;
   commanderQuery?: string;
+  onBack?: CommanderAppProps['onBack'];
+  setBackHandler?: CommanderBackHandlerSetter;
   setSearchTrailing?: CommanderAppProps['setSearchTrailing'];
   setQuery?: CommanderAppProps['setQuery'];
 }
@@ -49,6 +52,8 @@ export function YoutubeCommanderApp({
   host,
   prefsStore,
   commanderQuery,
+  onBack,
+  setBackHandler,
   setSearchTrailing,
   setQuery,
 }: YoutubeCommanderAppProps) {
@@ -58,6 +63,8 @@ export function YoutubeCommanderApp({
         host={host}
         prefsStore={prefsStore}
         commanderQuery={commanderQuery}
+        onBack={onBack}
+        setBackHandler={setBackHandler}
         setSearchTrailing={setSearchTrailing}
         setQuery={setQuery}
       />
@@ -69,6 +76,8 @@ function YoutubeCommanderInner({
   host,
   prefsStore,
   commanderQuery,
+  onBack,
+  setBackHandler,
   setSearchTrailing,
   setQuery,
 }: YoutubeCommanderAppProps) {
@@ -109,6 +118,30 @@ function YoutubeCommanderInner({
 
   const results = searchResult.results;
 
+  const handleBack = useCallback(() => {
+    if (view === 'settings') {
+      setView('search');
+      return;
+    }
+
+    onBack?.();
+  }, [onBack, view]);
+
+  useEffect(() => {
+    if (!setBackHandler) return;
+
+    setBackHandler(() => () => {
+      if (view === 'settings') {
+        setView('search');
+        return true;
+      }
+
+      return undefined;
+    });
+
+    return () => setBackHandler(undefined);
+  }, [setBackHandler, view]);
+
   useEffect(() => {
     if (isOffline || debouncedQuery.trim() === '') return;
     handleSelectIndex(0);
@@ -116,6 +149,10 @@ function YoutubeCommanderInner({
 
   useEffect(() => {
     if (!setSearchTrailing) return;
+    if (view === 'settings') {
+      setSearchTrailing(undefined);
+      return;
+    }
 
     const SettingsAction: CommanderSearchTrailingComponent = () => (
       <Button
@@ -131,7 +168,7 @@ function YoutubeCommanderInner({
 
     setSearchTrailing(() => SettingsAction);
     return () => setSearchTrailing(undefined);
-  }, [setSearchTrailing]);
+  }, [setSearchTrailing, view]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -229,7 +266,7 @@ function YoutubeCommanderInner({
       }
       if (view === 'settings') {
         e.stopPropagation();
-        setView('search');
+        handleBack();
         return;
       }
       return;
@@ -329,7 +366,7 @@ function YoutubeCommanderInner({
   if (view === 'settings') {
     return (
       <div className="flex flex-col h-full">
-        <SettingsView prefs={prefs} onSave={handleSavePrefs} onClose={() => setView('search')} />
+        <SettingsView prefs={prefs} onSave={handleSavePrefs} onClose={handleBack} />
       </div>
     );
   }
@@ -415,10 +452,10 @@ function YoutubeCommanderInner({
         )}
 
         {showEmptyState && !hasKey && (
-          <div className="p-4">
-            <Empty>
-              <Empty.EmptyMedia>
-                <Video size={24} aria-hidden="true" />
+          <div className="flex h-full min-h-[260px] items-center justify-center p-6">
+            <Empty className='gap-2'>
+              <Empty.EmptyMedia className='mb-0'>
+                <YoutubeLogoIcon size={28} />
               </Empty.EmptyMedia>
               <Empty.EmptyHeader>
                 <Empty.EmptyTitle>{t('noKeyTitle')}</Empty.EmptyTitle>
@@ -545,3 +582,11 @@ function ErrorState({ error, onOpenSettings }: { error: SearchError; onOpenSetti
       );
   }
 }
+
+
+
+
+
+
+
+

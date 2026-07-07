@@ -21,6 +21,8 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
   const [visible, setVisible] = useState(false);
   const [showBackup, setShowBackup] = useState(!!prefs.apiKeyBackup);
   const [saving, setSaving] = useState(false);
+  const [apiKeyInteractive, setApiKeyInteractive] = useState(false);
+  const [backupKeyInteractive, setBackupKeyInteractive] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
@@ -49,6 +51,28 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
     'data-lpignore': 'true',
   };
 
+  const getSecretInputProps = (
+    interactive: boolean,
+    setInteractive: (value: boolean) => void,
+    name: string
+  ) => ({
+    autoComplete: 'new-password',
+    autoCorrect: 'off' as const,
+    autoCapitalize: 'none' as const,
+    spellCheck: false,
+    inputMode: 'text' as const,
+    readOnly: !interactive,
+    name,
+    id: name,
+    'aria-autocomplete': 'none' as const,
+    'data-form-type': 'other',
+    'data-1p-ignore': 'true',
+    'data-lpignore': 'true',
+    'data-bwignore': 'true',
+    onFocus: () => setInteractive(true),
+    onPointerDown: () => setInteractive(true),
+  });
+
   return (
     <div className="p-4 flex flex-col gap-4">
       <h2 className="text-base font-semibold m-0">{t('settingsTitle')}</h2>
@@ -75,12 +99,11 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
             value={apiKey}
             onChange={(e) => setApiKey(e.currentTarget.value)}
             placeholder={t('apiKeyPlaceholder')}
-            autoComplete="new-password"
-            autoCorrect="off"
-            autoCapitalize="none"
-            spellCheck={false}
-            data-1p-ignore="true"
-            data-lpignore="true"
+            {...getSecretInputProps(
+              apiKeyInteractive,
+              setApiKeyInteractive,
+              'lumen-youtube-api-key'
+            )}
             className="flex-1 font-mono"
           />
           <Button variant="ghost" size="sm" onClick={() => setVisible(!visible)}>
@@ -123,12 +146,11 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
             value={apiKeyBackup}
             onChange={(e) => setApiKeyBackup(e.currentTarget.value)}
             placeholder={t('apiKeyBackupPlaceholder')}
-            autoComplete="new-password"
-            autoCorrect="off"
-            autoCapitalize="none"
-            spellCheck={false}
-            data-1p-ignore="true"
-            data-lpignore="true"
+            {...getSecretInputProps(
+              backupKeyInteractive,
+              setBackupKeyInteractive,
+              'lumen-youtube-backup-api-key'
+            )}
             className="flex-1 font-mono"
           />
           {apiKeyBackup && !visible && (
@@ -210,31 +232,37 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
           </Select>
         </div>
 
-        <div className="flex flex-col gap-1 col-span-full">
-          <Label>{t('defaultActionLabel')}</Label>
-          <Select
-            value={defaultAction}
-            onValueChange={(v) => setDefaultAction(v as YoutubePreferences['defaultAction'])}
-          >
-            <Select.SelectTrigger className="w-full">
-              <Select.SelectValue />
-            </Select.SelectTrigger>
-            <Select.SelectContent>
-              <Select.SelectItem value="addToQueue">{t('actionAddToQueue')}</Select.SelectItem>
-              <Select.SelectItem value="playNow">{t('actionPlayNow')}</Select.SelectItem>
-            </Select.SelectContent>
-          </Select>
-        </div>
-      </div>
+        <div className="col-span-full grid grid-cols-2 gap-3 items-end">
+          <div className="flex flex-col gap-1">
+            <Label>{t('defaultActionLabel')}</Label>
+            <Select
+              value={defaultAction}
+              onValueChange={(v) => setDefaultAction(v as YoutubePreferences['defaultAction'])}
+            >
+              <Select.SelectTrigger className="w-full">
+                <Select.SelectValue />
+              </Select.SelectTrigger>
+              <Select.SelectContent>
+                <Select.SelectItem value="addToQueue">{t('actionAddToQueue')}</Select.SelectItem>
+                <Select.SelectItem value="playNow">{t('actionPlayNow')}</Select.SelectItem>
+              </Select.SelectContent>
+            </Select>
+          </div>
 
-      <div className="flex gap-2 justify-end mt-2">
-        <Button variant="ghost" onClick={onClose} disabled={saving}>
-          {t('cancel')}
-        </Button>
-        <Button onClick={handleSave} disabled={saving}>
-          {saving ? t('saving') : t('save')}
-        </Button>
+          <div className="flex h-10 items-center justify-end gap-2 self-end">
+            <Button variant="ghost" onClick={onClose} disabled={saving}>
+              {t('cancel')}
+            </Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving ? t('saving') : t('save')}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
+
+
+

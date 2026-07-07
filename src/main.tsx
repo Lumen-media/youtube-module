@@ -1,10 +1,16 @@
+import { type Dispatch, type SetStateAction } from 'react';
 import { type CommanderAppProps, type LumenHost, LumenPlugin } from '@lumen-media/module-sdk';
-
 import { YoutubeCommanderApp } from './components/YoutubeCommanderApp.js';
 import { YoutubeLogoIcon } from './components/YoutubeLogoIcon.js';
 import { PreferencesStore } from './data/preferences.js';
 import { setupI18n, t } from './i18n.js';
 import css from './index.css?inline';
+
+type CommanderBackHandler = () => boolean | undefined | Promise<boolean | undefined>;
+type CommanderBackHandlerSetter = Dispatch<SetStateAction<CommanderBackHandler | undefined>>;
+type CommanderAppPropsWithBackHandler = CommanderAppProps & {
+  setBackHandler?: CommanderBackHandlerSetter;
+};
 
 export default class YoutubeModulePlugin extends LumenPlugin {
   private styleEl: HTMLStyleElement | null = null;
@@ -26,13 +32,15 @@ export default class YoutubeModulePlugin extends LumenPlugin {
       title: 'YouTube: Search',
       subtitle: t('commandSubtitle'),
       type: 'app',
-      icon: () => <YoutubeLogoIcon size={16} />,
+      icon: YoutubeLogoIcon,
       commanderSearch: { placeholder: t('searchPlaceholder') },
-      component: ({ query, setSearchTrailing, setQuery }: CommanderAppProps) => (
+      component: ({ query, onBack, setSearchTrailing, setQuery, ...rest }: CommanderAppProps) => (
         <YoutubeCommanderApp
           host={host}
           prefsStore={this.prefsStore}
           commanderQuery={query}
+          onBack={onBack}
+          setBackHandler={(rest as CommanderAppPropsWithBackHandler).setBackHandler}
           setSearchTrailing={setSearchTrailing}
           setQuery={setQuery}
         />
@@ -56,11 +64,13 @@ export default class YoutubeModulePlugin extends LumenPlugin {
               placeholder: t('searchPlaceholder'),
               initialQuery: query,
             },
-            component: ({ query: commanderQuery, setSearchTrailing, setQuery }: CommanderAppProps) => (
+            component: ({ query: commanderQuery, onBack, setSearchTrailing, setQuery, ...rest }: CommanderAppProps) => (
               <YoutubeCommanderApp
                 host={host}
                 prefsStore={this.prefsStore}
                 commanderQuery={commanderQuery}
+                onBack={onBack}
+                setBackHandler={(rest as CommanderAppPropsWithBackHandler).setBackHandler}
                 setSearchTrailing={setSearchTrailing}
                 setQuery={setQuery}
               />
@@ -87,11 +97,13 @@ export default class YoutubeModulePlugin extends LumenPlugin {
               placeholder: t('searchPlaceholder'),
               initialQuery: query,
             },
-            component: ({ query: commanderQuery, setSearchTrailing, setQuery }: CommanderAppProps) => (
+            component: ({ query: commanderQuery, onBack, setSearchTrailing, setQuery, ...rest }: CommanderAppProps) => (
               <YoutubeCommanderApp
                 host={host}
                 prefsStore={this.prefsStore}
                 commanderQuery={commanderQuery}
+                onBack={onBack}
+                setBackHandler={(rest as CommanderAppPropsWithBackHandler).setBackHandler}
                 setSearchTrailing={setSearchTrailing}
                 setQuery={setQuery}
               />
@@ -120,3 +132,10 @@ export default class YoutubeModulePlugin extends LumenPlugin {
     this.styleEl = null;
   }
 }
+
+
+
+
+
+
+
