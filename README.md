@@ -2,11 +2,7 @@
 
 A [Lumen](https://github.com/Lumen-media/lumen) module for searching YouTube videos directly from the Commander. Search, preview, and add videos to your queue, library, or play them without leaving the app.
 
-<!-- Screenshots — replace the paths once you have the images:
-  ![Main search view](./screenshots/main.png)
-  ![Google Cloud Console](./screenshots/google-console.png)
-  ![Settings](./screenshots/settings.png)
--->
+<img width="776" height="504" alt="image" src="https://github.com/user-attachments/assets/f7b3ee47-bb12-453b-93db-912af881e3e8" />
 
 ## Getting a YouTube API Key
 
