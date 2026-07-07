@@ -89,6 +89,19 @@ function YoutubeCommanderInner({
     selectedIndexRef.current = index;
     setSelectedIndex(index);
   }, []);
+  const lastToastRef = useRef('');
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const notify = useCallback((message: string, opts?: Record<string, unknown>) => {
+    const key = opts?.id ? String(opts.id) : message;
+    if (key === lastToastRef.current) return;
+    lastToastRef.current = key;
+    clearTimeout(toastTimeoutRef.current);
+    toastTimeoutRef.current = setTimeout(() => {
+      if (lastToastRef.current === key) lastToastRef.current = '';
+    }, 3000);
+    host.ui.notify({ message, ...opts });
+  }, [host]);
+
   const [prefs, setPrefs] = useState<YoutubePreferences>(prefsStore.get());
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -182,7 +195,7 @@ function YoutubeCommanderInner({
       if (typeof q.addUrl === 'function') {
         q.addUrl({ url: video.url, position: 'end' });
       }
-      host.ui.notify({ message: t('addedToQueue', { title: video.title }), id: `queue:${video.videoId}` });
+      notify(t('addedToQueue', { title: video.title }), { id: `queue:${video.videoId}` });
     },
     [host]
   );
@@ -193,7 +206,7 @@ function YoutubeCommanderInner({
       if (typeof q.addUrl === 'function') {
         q.addUrl({ url: video.url, position: 'next' });
       }
-      host.ui.notify({ message: t('addedNext', { title: video.title }), id: `next:${video.videoId}` });
+      notify(t('addedNext', { title: video.title }), { id: `next:${video.videoId}` });
     },
     [host]
   );
@@ -204,7 +217,7 @@ function YoutubeCommanderInner({
       if (typeof lib.addUrl === 'function') {
         lib.addUrl({ url: video.url });
       }
-      host.ui.notify({ message: t('addedToLibrary', { title: video.title }), id: `library:${video.videoId}` });
+      notify(t('addedToLibrary', { title: video.title }), { id: `library:${video.videoId}` });
     },
     [host]
   );
@@ -217,9 +230,9 @@ function YoutubeCommanderInner({
     async (video: YoutubeVideoResult) => {
       try {
         await navigator.clipboard.writeText(video.url);
-        host.ui.notify({ message: t('copiedUrl'), id: 'copy-url' });
+        notify(t('copiedUrl'), { id: 'copy-url' });
       } catch {
-        host.ui.notify({ message: t('copyFailed'), level: 'error', id: 'copy-failed' });
+        notify(t('copyFailed'), { level: 'error', id: 'copy-failed' });
       }
     },
     [host]
