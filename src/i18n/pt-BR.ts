@@ -73,6 +73,7 @@ const ptBR: Record<string, string> = {
   getKey: 'Obtenha uma no Google Cloud Console',
   save: 'Salvar',
   saving: 'Salvando...',
+  cancel: 'Cancelar',
 
   noResults: 'Nenhum resultado encontrado',
   noResultsDescription: 'Tente um termo de busca diferente.',
@@ -81,7 +82,7 @@ const ptBR: Record<string, string> = {
 
   today: 'Hoje',
   daysAgo: '{{count}}d atrás',
-  monthsAgo: '{{count}}meses atrás',
+  monthsAgo: '{{count}} meses atrás',
   yearsAgo: '{{count}}a atrás',
 
   views: '{{count}} visualizações',
@@ -95,6 +96,8 @@ const ptBR: Record<string, string> = {
   sourceGoogleDesc: 'Usa apenas a API do Google. Requer uma chave de API válida.',
   sourceInvidiousDesc:
     'Usa instâncias públicas do Invidious. Não precisa de chave, resultados podem variar por região.',
+  liveBadge: 'AO VIVO',
+  upcomingBadge: 'PRÓXIMO',
 };
 
 export default ptBR;

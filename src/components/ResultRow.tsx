@@ -138,12 +138,12 @@ export function ResultRow({
         )}
         {video.liveBroadcastContent === 'live' && (
           <span className="absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1.5 py-px rounded-sm uppercase">
-            LIVE
+            {t('liveBadge')}
           </span>
         )}
         {video.liveBroadcastContent === 'upcoming' && (
           <span className="absolute top-1 left-1 bg-primary text-white text-xs font-bold px-1.5 py-px rounded-sm uppercase">
-            UPCOMING
+            {t('upcomingBadge')}
           </span>
         )}
       </div>

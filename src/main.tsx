@@ -29,7 +29,7 @@ export default class YoutubeModulePlugin extends LumenPlugin {
 
     host.commands.add({
       id: 'youtube-module.search',
-      title: 'YouTube: Search',
+      title: t('commandTitle'),
       subtitle: t('commandSubtitle'),
       type: 'app',
       icon: YoutubeLogoIcon,
@@ -127,12 +127,12 @@ export default class YoutubeModulePlugin extends LumenPlugin {
 
     host.menus.register({
       id: 'youtube-module.menu',
-      label: 'YouTube',
+      label: t('commandTitle'),
       items: [
         {
           type: 'action',
           id: 'youtube-module.search',
-          label: 'YouTube: Search',
+          label: t('commandTitle'),
           onClick: () => host.commands.invoke('youtube-module.search'),
         },
       ],

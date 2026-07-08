@@ -73,6 +73,7 @@ const en: Record<string, string> = {
   getKey: 'Get one at Google Cloud Console',
   save: 'Save',
   saving: 'Saving...',
+  cancel: 'Cancel',
 
   noResults: 'No results found',
   noResultsDescription: 'Try a different search term.',
@@ -95,6 +96,8 @@ const en: Record<string, string> = {
   sourceGoogleDesc: 'Uses the Google YouTube API only. Requires a valid API key.',
   sourceInvidiousDesc:
     'Uses public Invidious instances. No API key needed, results may vary by region.',
+  liveBadge: 'LIVE',
+  upcomingBadge: 'UPCOMING',
 };
 
 export default en;
