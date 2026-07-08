@@ -52,7 +52,12 @@ Open via command palette: `YouTube: Search`
 
 ### Quick Prefix
 
-Type `youtube <query>` or `yt <query>` in the command palette to search directly.
+Type `youtube <query>` or `yt <query>` directly in the command palette to search YouTube without opening the module first.
+
+| Prefix | Example | Result |
+|--------|---------|--------|
+| `youtube` | `youtube hillsong oceans` | Searches for "hillsong oceans" |
+| `yt` | `yt tudo posso` | Searches for "tudo posso" |
 
 ### URL Paste
 
