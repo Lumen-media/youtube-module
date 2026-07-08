@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import type { YoutubeApi } from '../youtube-api.js';
-import type { SearchError, YoutubeVideoResult } from '../youtube-types.js';
+import type { SearchError, YoutubePreferences, YoutubeVideoResult } from '../youtube-types.js';
 import { makeVideoUrl, parseVideoId } from '../youtube-url.js';
 
 export interface UseYoutubeSearchResult {
@@ -17,14 +17,15 @@ export interface UseYoutubeSearchResult {
 export function useYoutubeSearch(
   api: YoutubeApi | null,
   query: string,
-  apiKey: string
+  apiKey: string,
+  searchSource: YoutubePreferences['searchSource'] = 'auto'
 ): UseYoutubeSearchResult {
   const trimmed = query.trim();
   const urlId = trimmed && parseVideoId(trimmed);
   const isUrlCase = !!urlId;
 
   const queryResult = useInfiniteQuery({
-    queryKey: ['youtube-search', trimmed, apiKey],
+    queryKey: ['youtube-search', trimmed, apiKey, searchSource],
     queryFn: async ({ pageParam }) => {
       return api!.search(trimmed, pageParam);
     },

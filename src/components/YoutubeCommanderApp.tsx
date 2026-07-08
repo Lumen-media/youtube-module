@@ -138,7 +138,7 @@ function YoutubeCommanderInner({
   useEventListener('online', () => setIsOffline(false));
   useEventListener('offline', () => setIsOffline(true));
 
-  const searchResult = useYoutubeSearch(api, debouncedQuery, prefs.apiKey);
+  const searchResult = useYoutubeSearch(api, debouncedQuery, prefs.apiKey, prefs.searchSource);
 
   const results = searchResult.results;
 
@@ -374,6 +374,7 @@ function YoutubeCommanderInner({
   };
 
   const hasKey = prefsStore.hasApiKey();
+  const needsExplicitKey = prefs.searchSource === 'google' && !hasKey;
   const showEmptyState =
     !searchResult.isLoading &&
     !searchResult.error &&
@@ -462,7 +463,7 @@ function YoutubeCommanderInner({
           </ScrollArea>
         )}
 
-        {showEmptyState && !hasKey && (
+        {showEmptyState && needsExplicitKey && (
           <div className="flex h-full min-h-[260px] items-center justify-center p-6">
             <Empty className="gap-2">
               <Empty.EmptyMedia className="mb-0">
@@ -479,7 +480,7 @@ function YoutubeCommanderInner({
           </div>
         )}
 
-        {showEmptyState && hasKey && debouncedQuery.trim() === '' && (
+        {showEmptyState && !needsExplicitKey && debouncedQuery.trim() === '' && (
           <div className="flex h-full min-h-[260px] items-center justify-center p-6">
             <Empty className="gap-2">
               <Empty.EmptyMedia className="mb-0">
@@ -496,7 +497,7 @@ function YoutubeCommanderInner({
         {!isOffline &&
           !searchResult.isLoading &&
           !searchResult.error &&
-          hasKey &&
+          !needsExplicitKey &&
           debouncedQuery.trim() &&
           results.length === 0 && (
             <div className="p-4">

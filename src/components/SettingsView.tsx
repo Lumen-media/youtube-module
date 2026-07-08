@@ -23,6 +23,7 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
   const [saving, setSaving] = useState(false);
   const [apiKeyInteractive, setApiKeyInteractive] = useState(false);
   const [backupKeyInteractive, setBackupKeyInteractive] = useState(false);
+  const [searchSource, setSearchSource] = useState(prefs.searchSource);
 
   const handleSave = async () => {
     setSaving(true);
@@ -35,6 +36,7 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
         safeSearch,
         defaultAction,
         maxResults,
+        searchSource,
       });
       onClose();
     } finally {
@@ -169,6 +171,28 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
           {t('addBackupKey')}
         </button>
       )}
+
+      <div className="flex flex-col gap-1">
+        <Label>{t('sourceLabel')}</Label>
+        <Select
+          value={searchSource}
+          onValueChange={(v) => setSearchSource(v as YoutubePreferences['searchSource'])}
+        >
+          <Select.SelectTrigger className="w-full">
+            <Select.SelectValue />
+          </Select.SelectTrigger>
+          <Select.SelectContent>
+            <Select.SelectItem value="auto">{t('sourceAuto')}</Select.SelectItem>
+            <Select.SelectItem value="google">{t('sourceGoogle')}</Select.SelectItem>
+            <Select.SelectItem value="invidious">{t('sourceInvidious')}</Select.SelectItem>
+          </Select.SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground mt-0.5 mb-0">
+          {searchSource === 'auto' && t('sourceAutoDesc')}
+          {searchSource === 'google' && t('sourceGoogleDesc')}
+          {searchSource === 'invidious' && t('sourceInvidiousDesc')}
+        </p>
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">

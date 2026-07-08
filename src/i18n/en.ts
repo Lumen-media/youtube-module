@@ -85,6 +85,16 @@ const en: Record<string, string> = {
   yearsAgo: '{{count}}y ago',
 
   views: '{{count}} views',
+
+  sourceLabel: 'Search Source',
+  sourceAuto: 'Automatic (Google + Invidious fallback)',
+  sourceGoogle: 'Google API only',
+  sourceInvidious: 'Invidious only',
+  sourceAutoDesc:
+    'Uses Google API if a key is configured; falls back to Invidious on quota or if no key.',
+  sourceGoogleDesc: 'Uses the Google YouTube API only. Requires a valid API key.',
+  sourceInvidiousDesc:
+    'Uses public Invidious instances. No API key needed, results may vary by region.',
 };
 
 export default en;

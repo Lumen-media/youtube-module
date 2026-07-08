@@ -85,6 +85,16 @@ const ptBR: Record<string, string> = {
   yearsAgo: '{{count}}a atrás',
 
   views: '{{count}} visualizações',
+
+  sourceLabel: 'Fonte de Busca',
+  sourceAuto: 'Automático (Google + fallback Invidious)',
+  sourceGoogle: 'API do Google apenas',
+  sourceInvidious: 'Invidious apenas',
+  sourceAutoDesc:
+    'Usa a API do Google se houver chave configurada; cai para Invidious se a cota acabar ou sem chave.',
+  sourceGoogleDesc: 'Usa apenas a API do Google. Requer uma chave de API válida.',
+  sourceInvidiousDesc:
+    'Usa instâncias públicas do Invidious. Não precisa de chave, resultados podem variar por região.',
 };
 
 export default ptBR;

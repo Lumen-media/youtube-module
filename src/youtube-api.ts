@@ -1,4 +1,5 @@
 import type { NetAPI, NetMethod, NetResponse } from '@lumen-media/module-sdk';
+import { InvidiousApi } from './invidious-api.js';
 import type {
   SearchError,
   YoutubePreferences,
@@ -43,12 +44,20 @@ function normalizeResult(
 
 export class YoutubeApi {
   #keyOrder: string[];
+  #invidious: InvidiousApi;
+  #source: YoutubePreferences['searchSource'];
 
   constructor(
     private net: NetAPI,
     private prefs: YoutubePreferences
   ) {
     this.#keyOrder = this.#buildKeyOrder();
+    this.#invidious = new InvidiousApi(
+      net,
+      prefs.regionCode,
+      prefs.relevanceLanguage || prefs.regionCode?.toLowerCase()
+    );
+    this.#source = prefs.searchSource || 'auto';
   }
 
   #buildKeyOrder(): string[] {
@@ -159,6 +168,51 @@ export class YoutubeApi {
   }
 
   async search(
+    query: string,
+    pageToken?: string
+  ): Promise<{
+    results: YoutubeVideoResult[];
+    nextPageToken?: string;
+    prevPageToken?: string;
+  }> {
+    if (this.#source === 'invidious') {
+      const invidiousResult = await this.#invidious.search(query, pageToken);
+      return {
+        ...invidiousResult,
+        prevPageToken: undefined,
+      };
+    }
+
+    if (this.#source === 'google') {
+      return this.#googleSearch(query, pageToken);
+    }
+
+    if (this.#keyOrder.length > 0) {
+      try {
+        return await this.#googleSearch(query, pageToken);
+      } catch (err: unknown) {
+        if (err && typeof err === 'object' && 'type' in err) {
+          const e = err as SearchError;
+          if (e.type === 'quota_exceeded' || e.type === 'missing_key') {
+            const invidiousResult = await this.#invidious.search(query, pageToken);
+            return {
+              ...invidiousResult,
+              prevPageToken: undefined,
+            };
+          }
+        }
+        throw err;
+      }
+    }
+
+    const invidiousResult = await this.#invidious.search(query, pageToken);
+    return {
+      ...invidiousResult,
+      prevPageToken: undefined,
+    };
+  }
+
+  async #googleSearch(
     query: string,
     pageToken?: string
   ): Promise<{

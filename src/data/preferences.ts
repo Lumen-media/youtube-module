@@ -11,6 +11,7 @@ const DEFAULTS: YoutubePreferences = {
   safeSearch: 'moderate',
   defaultAction: 'playNow',
   maxResults: 5,
+  searchSource: 'auto',
 };
 
 export class PreferencesStore {

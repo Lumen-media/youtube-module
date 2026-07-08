@@ -4,9 +4,20 @@ A [Lumen](https://github.com/Lumen-media/lumen) module for searching YouTube vid
 
 <img width="776" height="504" alt="image" src="https://github.com/user-attachments/assets/f7b3ee47-bb12-453b-93db-912af881e3e8" />
 
-## Getting a YouTube API Key
+## Search Sources
 
-This module requires a **YouTube Data API v3 key** to function. The key belongs to you — it is not provided by Lumen or the module.
+The module supports two search backends and can switch between them automatically:
+
+| Source | API Key Required | Quota | Best For |
+|--------|------------------|-------|----------|
+| **Google YouTube API** | Yes | ~100 searches/day | Precise regional/language filtering, official results |
+| **Invidious (public instances)** | No | Unlimited | No key needed, fallback when quota exceeded |
+
+**Default mode: `Automatic`** — Uses Google API if a key is configured; transparently falls back to Invidious when quota is exhausted or if no key is set. You can force a specific source in Settings.
+
+## Getting a YouTube API Key (Optional)
+
+An API key enables the Google backend with better regional filtering (`regionCode`, `relevanceLanguage`). Without a key, the module works out of the box via Invidious.
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 2. Create a new project or select an existing one
@@ -17,18 +28,20 @@ This module requires a **YouTube Data API v3 key** to function. The key belongs 
 4. Create an API key:
    - Go to **APIs & Services > Credentials**
    - Click **Create Credentials > API Key**
-    - Copy the generated key
+   - Copy the generated key
 
 ## Configuration
 
 1. Open the YouTube module in the Commander (`YouTube: Search`)
 2. Click the gear icon (⚙) in the top-right corner
-3. Paste your API key and adjust preferences:
-   - **Region Code** (e.g., `BR`)
-   - **Language** (e.g., `pt`)
+3. Adjust preferences:
+   - **Search Source** — `Automatic` (default) / `Google API only` / `Invidious only`
+   - **Region Code** (e.g., `BR`) — Google API only
+   - **Language** (e.g., `pt`) — Google API only
    - **Safe Search** (None / Moderate / Strict)
    - **Max Results** (10 / 25 / 50)
-    - **Default Action** (Add to Queue / Play Now)
+   - **Default Action** (Add to Queue / Play Now)
+4. (Optional) Paste your Google API key and/or a backup key for redundancy
 
 ## Usage
 
@@ -67,9 +80,11 @@ Paste a YouTube URL (`youtube.com/watch`, `youtu.be`, `shorts`, `embed`) into th
 
 | State | Behavior |
 |-------|----------|
-| No API key | Shows CTA to configure in settings |
+| No API key (Automatic mode) | Works via Invidious; key is optional |
+| No API key (Google-only mode) | Shows CTA to configure in settings |
 | Invalid key | Shows error with shortcut to edit key |
-| Quota exceeded | Shows warning, cached results remain available |
+| Quota exceeded (Auto mode) | Transparent fallback to Invidious |
+| Quota exceeded (Google-only mode) | Shows warning, cached results remain available |
 | Offline / Network error | Shows retry button |
 
 ## Architecture
@@ -77,7 +92,8 @@ Paste a YouTube URL (`youtube.com/watch`, `youtu.be`, `shorts`, `embed`) into th
 ```
 src/
 ├── main.tsx                  # Plugin entry — registers commands, prefixes, menu
-├── youtube-api.ts            # YouTube Data API v3 client with key rotation
+├── youtube-api.ts            # Unified search (Google + Invidious with auto-fallback)
+├── invidious-api.ts          # Invidious client with instance failover
 ├── youtube-types.ts          # Shared types (responses, preferences, errors)
 ├── youtube-url.ts            # URL parsing / generation helpers
 ├── i18n.ts                   # Translation setup
@@ -87,7 +103,7 @@ src/
 │   ├── YoutubeCommanderApp   # Root Commander app (search + settings views)
 │   ├── ResultList            # Virtualized results list
 │   ├── ResultRow             # Single result row with thumbnail + metadata
-│   ├── SettingsView          # API key + preferences form
+│   ├── SettingsView          # API key + preferences + source selector
 │   └── YoutubeLogoIcon       # YouTube SVG icon
 └── i18n/
     ├── en.ts                 # English (default)
@@ -125,3 +141,7 @@ pnpm format       # biome format — format src/
 ## License
 
 MIT
+
+---
+
+Powered by [Invidious API](https://docs.invidious.io/api/) — uses public Invidious instances for keyless, unlimited YouTube search.
