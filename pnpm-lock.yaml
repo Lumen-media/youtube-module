@@ -34,8 +34,8 @@ importers:
         specifier: ^2.5.2
         version: 2.5.2
       '@lumen-media/module-cli':
-        specifier: ^0.12.0
-        version: 0.12.0(vite@7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0))
+        specifier: ^0.12.4
+        version: 0.12.4(vite@7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0))
       '@lumen-media/module-sdk':
         specifier: ^0.12.3
         version: 0.12.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -297,8 +297,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@lumen-media/module-cli@0.12.0':
-    resolution: {integrity: sha512-9P2YTCrK+zNqXwSiAZKZkgA/IOOF3S9qDrP1+4nNZ/NzpNj9lXToQ0a6CG10ZVPdlKcYYLYwOcVYQjvzckFN5A==}
+  '@lumen-media/module-cli@0.12.4':
+    resolution: {integrity: sha512-JWlUHekOLb9kBPRNAML1qfVdKOIh6otDaGZ+xR91wRyfpfJmOvjSxJUSsycW7A89GqfUwmD2SVUmb4MuLRhbuw==}
     hasBin: true
     peerDependencies:
       vite: '>=5'
@@ -1247,7 +1247,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@lumen-media/module-cli@0.12.0(vite@7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0))':
+  '@lumen-media/module-cli@0.12.4(vite@7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0))':
     dependencies:
       archiver: 7.0.1
       vite: 7.3.6(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)
