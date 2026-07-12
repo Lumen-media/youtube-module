@@ -1,3 +1,4 @@
+import { ScrollArea } from '@lumen-media/module-sdk/ui';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useEffect } from 'react';
 import type { YoutubeVideoResult } from '../youtube-types.js';
@@ -55,43 +56,49 @@ export function ResultList({
   if (results.length === 0) return null;
 
   return (
-    <div
-      style={{
-        height: `${virtualizer.getTotalSize()}px`,
-        position: 'relative',
-      }}
+    <ScrollArea
+      ref={scrollRef}
+      className="flex flex-col h-full max-h-96"
+      viewportClassName="custom-scrollbar"
     >
-      {virtualizer.getVirtualItems().map((virtualItem) => {
-        const video = results[virtualItem.index];
-        return (
-          <div
-            key={virtualItem.key}
-            ref={virtualizer.measureElement}
-            data-index={virtualItem.index}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              transform: `translateY(${virtualItem.start}px)`,
-            }}
-          >
-            <ResultRow
-              video={video}
-              selected={virtualItem.index === selectedIndex}
-              onSelect={() => onSelectIndex(virtualItem.index)}
-              onPrimaryAction={() => onPrimaryAction(video)}
-              onAddToQueue={() => onAddToQueue(video)}
-              onAddNext={() => onAddNext(video)}
-              onAddToLibrary={() => onAddToLibrary(video)}
-              onCtrlEnter={() => onCtrlEnter(video)}
-              onOpenExternal={() => onOpenExternal(video)}
-              onCopyUrl={() => onCopyUrl(video)}
-              index={virtualItem.index}
-            />
-          </div>
-        );
-      })}
-    </div>
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          position: 'relative',
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualItem) => {
+          const video = results[virtualItem.index];
+          return (
+            <div
+              key={virtualItem.key}
+              ref={virtualizer.measureElement}
+              data-index={virtualItem.index}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                transform: `translateY(${virtualItem.start}px)`,
+              }}
+            >
+              <ResultRow
+                video={video}
+                selected={virtualItem.index === selectedIndex}
+                onSelect={() => onSelectIndex(virtualItem.index)}
+                onPrimaryAction={() => onPrimaryAction(video)}
+                onAddToQueue={() => onAddToQueue(video)}
+                onAddNext={() => onAddNext(video)}
+                onAddToLibrary={() => onAddToLibrary(video)}
+                onCtrlEnter={() => onCtrlEnter(video)}
+                onOpenExternal={() => onOpenExternal(video)}
+                onCopyUrl={() => onCopyUrl(video)}
+                index={virtualItem.index}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </ScrollArea>
   );
 }
