@@ -205,7 +205,7 @@ function YoutubeCommanderInner({
     (video: YoutubeVideoResult) => {
       const q = host.queue as unknown as Record<string, unknown>;
       if (typeof q.addUrl === 'function') {
-        q.addUrl({ url: video.url, position: 'end' });
+        q.addUrl({ url: video.url, position: 'end', duration: video.durationSeconds });
       }
       notify(t('addedToQueue', { title: video.title }), { id: `queue:${video.videoId}` });
     },
@@ -216,7 +216,7 @@ function YoutubeCommanderInner({
     (video: YoutubeVideoResult) => {
       const q = host.queue as unknown as Record<string, unknown>;
       if (typeof q.addUrl === 'function') {
-        q.addUrl({ url: video.url, position: 'next' });
+        q.addUrl({ url: video.url, position: 'next', duration: video.durationSeconds });
       }
       notify(t('addedNext', { title: video.title }), { id: `next:${video.videoId}` });
     },
@@ -227,7 +227,7 @@ function YoutubeCommanderInner({
     (video: YoutubeVideoResult) => {
       const lib = host.library as unknown as Record<string, unknown>;
       if (typeof lib.addUrl === 'function') {
-        lib.addUrl({ url: video.url });
+        lib.addUrl({ url: video.url, duration: video.durationSeconds });
       }
       notify(t('addedToLibrary', { title: video.title }), { id: `library:${video.videoId}` });
     },
