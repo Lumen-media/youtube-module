@@ -43,7 +43,7 @@ export function ResultList({
 
   useEffect(() => {
     virtualizer.measure();
-  }, [results, virtualizer]);
+  }, [virtualizer]);
 
   useEffect(() => {
     if (shouldScrollRef?.current) {
