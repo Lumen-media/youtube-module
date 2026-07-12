@@ -3,7 +3,6 @@ import type {
   CommanderSearchTrailingComponent,
   LumenHost,
 } from '@lumen-media/module-sdk';
-import { ScrollArea } from '@lumen-media/module-sdk/ui';
 import { Button, Empty } from '@lumen-media/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -413,10 +412,9 @@ function YoutubeCommanderInner({
         )}
 
         {!isOffline && !searchResult.isLoading && !searchResult.error && results.length > 0 && (
-          <ScrollArea
+          <div
             ref={scrollRef}
-            className="h-full max-h-96"
-            viewportClassName="custom-scrollbar"
+            className="h-full max-h-96 overflow-y-auto youtube-results-scrollbar"
           >
             <ResultList
               results={results}
@@ -451,7 +449,7 @@ function YoutubeCommanderInner({
                 </Button>
               </div>
             )}
-          </ScrollArea>
+          </div>
         )}
 
         {showEmptyState && needsExplicitKey && (

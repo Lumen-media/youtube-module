@@ -48,3 +48,32 @@
 .custom-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.youtube-results-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.youtube-results-scrollbar:hover {
+  scrollbar-color: var(--border) transparent;
+}
+
+.youtube-results-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.youtube-results-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.youtube-results-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+.youtube-results-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: var(--border);
+  background-clip: content-box;
+}
