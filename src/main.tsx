@@ -124,19 +124,6 @@ export default class YoutubeModulePlugin extends LumenPlugin {
         ];
       },
     });
-
-    host.menus.register({
-      id: 'youtube-module.menu',
-      label: t('commandTitle'),
-      items: [
-        {
-          type: 'action',
-          id: 'youtube-module.search',
-          label: t('commandTitle'),
-          onClick: () => host.commands.invoke('youtube-module.search'),
-        },
-      ],
-    });
   }
 
   async onunload(): Promise<void> {
