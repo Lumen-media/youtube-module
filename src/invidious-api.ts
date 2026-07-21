@@ -67,7 +67,7 @@ export class InvidiousApi {
     if (this.regionCode) params.region = this.regionCode;
 
     const res = await this.net.request<InvidiousVideoItem[]>({
-      method: 'get' as unknown as never,
+      method: 'GET',
       url: `${baseUrl}/api/v1/search`,
       query: params,
     });

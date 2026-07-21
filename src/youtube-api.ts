@@ -1,4 +1,4 @@
-import type { NetAPI, NetMethod, NetResponse } from '@lumen-media/module-sdk';
+import type { NetAPI, NetResponse } from '@lumen-media/module-sdk';
 import { InvidiousApi } from './invidious-api.js';
 import type {
   SearchError,
@@ -137,7 +137,7 @@ export class YoutubeApi {
 
   private async doSearch(query: string, pageToken: string | undefined, key: string) {
     return this.net.request<YoutubeSearchResponse>({
-      method: 'get' as unknown as NetMethod,
+      method: 'GET',
       url: 'https://www.googleapis.com/youtube/v3/search',
       query: {
         part: 'snippet',
@@ -157,7 +157,7 @@ export class YoutubeApi {
 
   private async doDetails(videoIds: string[], key: string) {
     return this.net.request<YoutubeVideoResponse>({
-      method: 'get' as unknown as NetMethod,
+      method: 'GET',
       url: 'https://www.googleapis.com/youtube/v3/videos',
       query: {
         part: 'contentDetails,statistics',
