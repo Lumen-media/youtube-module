@@ -88,14 +88,17 @@ const en: Record<string, string> = {
   views: '{{count}} views',
 
   sourceLabel: 'Search Source',
-  sourceAuto: 'Automatic (Google + Invidious fallback)',
+  sourceAuto: 'Automatic (Google + fallbacks)',
   sourceGoogle: 'Google API only',
+  sourcePiped: 'Piped only',
   sourceInvidious: 'Invidious only',
   sourceAutoDesc:
-    'Uses Google API if a key is configured; falls back to Invidious on quota or if no key.',
+    'Uses Google API if a key is configured; falls back to Invidious, then Piped, then YouTube page.',
   sourceGoogleDesc: 'Uses the Google YouTube API only. Requires a valid API key.',
+  sourcePipedDesc:
+    'Uses the Piped API (api.piped.private.coffee). No API key needed, fast results.',
   sourceInvidiousDesc:
-    'Uses public Invidious instances. No API key needed, results may vary by region.',
+    'Uses the Invidious API (inv.zoomerville.com). No API key needed.',
   liveBadge: 'LIVE',
   upcomingBadge: 'UPCOMING',
 };

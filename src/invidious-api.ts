@@ -3,11 +3,7 @@ import type { SearchError, YoutubeVideoResult } from './youtube-types.js';
 import { makeVideoUrl } from './youtube-url.js';
 
 const DEFAULT_INSTANCES: string[] = [
-  'https://yt.chocolatemoo53.com',
-  'https://invidious.snopyta.org',
-  'https://yewtu.be',
-  'https://inv.nadeko.net',
-  'https://vid.puffyan.us',
+  'https://inv.zoomerville.com',
 ];
 
 interface InvidiousVideoItem {
@@ -70,6 +66,11 @@ export class InvidiousApi {
       method: 'GET',
       url: `${baseUrl}/api/v1/search`,
       query: params,
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        Accept: 'application/json',
+      },
     });
 
     if (!res.ok) {
@@ -77,7 +78,7 @@ export class InvidiousApi {
     }
 
     if (!Array.isArray(res.data)) {
-      return { results: [] };
+      throw new Error(`Unexpected response from ${baseUrl} (status ${res.status})`);
     }
 
     const nextPage = page ? String(Number(page) + 1) : '2';

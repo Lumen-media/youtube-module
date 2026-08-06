@@ -1,4 +1,6 @@
 import type { NetAPI, NetResponse } from '@lumen-media/module-sdk';
+import { YoutubeInternalApi } from './youtube-internal-api.js';
+import { PipedApi } from './piped-api.js';
 import { InvidiousApi } from './invidious-api.js';
 import type {
   SearchError,
@@ -45,6 +47,8 @@ function normalizeResult(
 export class YoutubeApi {
   #keyOrder: string[];
   #invidious: InvidiousApi;
+  #piped: PipedApi;
+  #ytInternal: YoutubeInternalApi;
   #source: YoutubePreferences['searchSource'];
 
   constructor(
@@ -53,6 +57,12 @@ export class YoutubeApi {
   ) {
     this.#keyOrder = this.#buildKeyOrder();
     this.#invidious = new InvidiousApi(
+      net,
+      prefs.regionCode,
+      prefs.relevanceLanguage || prefs.regionCode?.toLowerCase()
+    );
+    this.#piped = new PipedApi(net);
+    this.#ytInternal = new YoutubeInternalApi(
       net,
       prefs.regionCode,
       prefs.relevanceLanguage || prefs.regionCode?.toLowerCase()
@@ -167,6 +177,21 @@ export class YoutubeApi {
     });
   }
 
+  async #keylessSearch(query: string, pageToken?: string) {
+    try {
+      const result = await this.#invidious.search(query, pageToken);
+      return { ...result, prevPageToken: undefined };
+    } catch {
+      try {
+        const pipedResult = await this.#piped.search(query);
+        return { ...pipedResult, prevPageToken: undefined };
+      } catch {
+        const result = await this.#ytInternal.search(query, pageToken);
+        return { ...result, prevPageToken: undefined };
+      }
+    }
+  }
+
   async search(
     query: string,
     pageToken?: string
@@ -175,16 +200,18 @@ export class YoutubeApi {
     nextPageToken?: string;
     prevPageToken?: string;
   }> {
-    if (this.#source === 'invidious') {
-      const invidiousResult = await this.#invidious.search(query, pageToken);
-      return {
-        ...invidiousResult,
-        prevPageToken: undefined,
-      };
-    }
-
     if (this.#source === 'google') {
       return this.#googleSearch(query, pageToken);
+    }
+
+    if (this.#source === 'piped') {
+      const result = await this.#piped.search(query);
+      return { ...result, prevPageToken: undefined };
+    }
+
+    if (this.#source === 'invidious') {
+      const result = await this.#invidious.search(query, pageToken);
+      return { ...result, prevPageToken: undefined };
     }
 
     if (this.#keyOrder.length > 0) {
@@ -194,22 +221,14 @@ export class YoutubeApi {
         if (err && typeof err === 'object' && 'type' in err) {
           const e = err as SearchError;
           if (e.type === 'quota_exceeded' || e.type === 'missing_key') {
-            const invidiousResult = await this.#invidious.search(query, pageToken);
-            return {
-              ...invidiousResult,
-              prevPageToken: undefined,
-            };
+            return this.#keylessSearch(query, pageToken);
           }
         }
         throw err;
       }
     }
 
-    const invidiousResult = await this.#invidious.search(query, pageToken);
-    return {
-      ...invidiousResult,
-      prevPageToken: undefined,
-    };
+    return this.#keylessSearch(query, pageToken);
   }
 
   async #googleSearch(

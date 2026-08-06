@@ -88,14 +88,17 @@ const ptBR: Record<string, string> = {
   views: '{{count}} visualizações',
 
   sourceLabel: 'Fonte de Busca',
-  sourceAuto: 'Automático (Google + fallback Invidious)',
+  sourceAuto: 'Automático (Google + fallbacks)',
   sourceGoogle: 'API do Google apenas',
+  sourcePiped: 'Piped apenas',
   sourceInvidious: 'Invidious apenas',
   sourceAutoDesc:
-    'Usa a API do Google se houver chave configurada; cai para Invidious se a cota acabar ou sem chave.',
+    'Usa a API do Google se houver chave; cai para Invidious, depois Piped, depois página do YouTube.',
   sourceGoogleDesc: 'Usa apenas a API do Google. Requer uma chave de API válida.',
+  sourcePipedDesc:
+    'Usa a API do Piped (api.piped.private.coffee). Não precisa de chave, resultados rápidos.',
   sourceInvidiousDesc:
-    'Usa instâncias públicas do Invidious. Não precisa de chave, resultados podem variar por região.',
+    'Usa a API do Invidious (inv.zoomerville.com). Não precisa de chave.',
   liveBadge: 'AO VIVO',
   upcomingBadge: 'PRÓXIMO',
 };

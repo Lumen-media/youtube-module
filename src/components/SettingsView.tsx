@@ -184,12 +184,14 @@ export function SettingsView({ prefs, onSave, onClose }: SettingsViewProps) {
           <Select.SelectContent>
             <Select.SelectItem value="auto">{t('sourceAuto')}</Select.SelectItem>
             <Select.SelectItem value="google">{t('sourceGoogle')}</Select.SelectItem>
+            <Select.SelectItem value="piped">{t('sourcePiped')}</Select.SelectItem>
             <Select.SelectItem value="invidious">{t('sourceInvidious')}</Select.SelectItem>
           </Select.SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground mt-0.5 mb-0">
           {searchSource === 'auto' && t('sourceAutoDesc')}
           {searchSource === 'google' && t('sourceGoogleDesc')}
+          {searchSource === 'piped' && t('sourcePipedDesc')}
           {searchSource === 'invidious' && t('sourceInvidiousDesc')}
         </p>
       </div>
