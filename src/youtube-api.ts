@@ -1,7 +1,6 @@
 import type { NetAPI, NetResponse } from '@lumen-media/module-sdk';
-import { YoutubeInternalApi } from './youtube-internal-api.js';
 import { PipedApi } from './piped-api.js';
-import { InvidiousApi } from './invidious-api.js';
+import { YoutubeInternalApi } from './youtube-internal-api.js';
 import type {
   SearchError,
   YoutubePreferences,
@@ -46,7 +45,6 @@ function normalizeResult(
 
 export class YoutubeApi {
   #keyOrder: string[];
-  #invidious: InvidiousApi;
   #piped: PipedApi;
   #ytInternal: YoutubeInternalApi;
   #source: YoutubePreferences['searchSource'];
@@ -56,11 +54,6 @@ export class YoutubeApi {
     private prefs: YoutubePreferences
   ) {
     this.#keyOrder = this.#buildKeyOrder();
-    this.#invidious = new InvidiousApi(
-      net,
-      prefs.regionCode,
-      prefs.relevanceLanguage || prefs.regionCode?.toLowerCase()
-    );
     this.#piped = new PipedApi(net);
     this.#ytInternal = new YoutubeInternalApi(
       net,
@@ -179,16 +172,11 @@ export class YoutubeApi {
 
   async #keylessSearch(query: string, pageToken?: string) {
     try {
-      const result = await this.#invidious.search(query, pageToken);
-      return { ...result, prevPageToken: undefined };
+      const pipedResult = await this.#piped.search(query);
+      return { ...pipedResult, prevPageToken: undefined };
     } catch {
-      try {
-        const pipedResult = await this.#piped.search(query);
-        return { ...pipedResult, prevPageToken: undefined };
-      } catch {
-        const result = await this.#ytInternal.search(query, pageToken);
-        return { ...result, prevPageToken: undefined };
-      }
+      const result = await this.#ytInternal.search(query, pageToken);
+      return { ...result, prevPageToken: undefined };
     }
   }
 
@@ -206,11 +194,6 @@ export class YoutubeApi {
 
     if (this.#source === 'piped') {
       const result = await this.#piped.search(query);
-      return { ...result, prevPageToken: undefined };
-    }
-
-    if (this.#source === 'invidious') {
-      const result = await this.#invidious.search(query, pageToken);
       return { ...result, prevPageToken: undefined };
     }
 

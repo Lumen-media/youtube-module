@@ -2,7 +2,10 @@ import type { NetAPI } from '@lumen-media/module-sdk';
 import type { SearchError, YoutubeVideoResult } from './youtube-types.js';
 import { makeVideoUrl } from './youtube-url.js';
 
-const PIPED_INSTANCE = 'https://api.piped.private.coffee';
+const PIPED_INSTANCES: string[] = [
+  'https://api.piped.private.coffee',
+  'https://pipedapi.ducks.party',
+];
 
 interface PipedVideoItem {
   url: string;
@@ -40,35 +43,38 @@ function extractChannelId(url: string): string | undefined {
 }
 
 export class PipedApi {
-  constructor(
-    private net: NetAPI,
-  ) {}
+  #instances: string[];
 
-  async search(
-    query: string,
+  constructor(private net: NetAPI) {
+    this.#instances = [...PIPED_INSTANCES];
+  }
+
+  private demoteInstance(baseUrl: string) {
+    const idx = this.#instances.indexOf(baseUrl);
+    if (idx !== -1) {
+      this.#instances.splice(idx, 1);
+      this.#instances.push(baseUrl);
+    }
+  }
+
+  private async tryInstance(
+    baseUrl: string,
+    query: string
   ): Promise<{ results: YoutubeVideoResult[]; nextPageToken?: string }> {
     const res = await this.net.request<PipedResponse>({
       method: 'GET',
-      url: `${PIPED_INSTANCE}/search`,
+      url: `${baseUrl}/search`,
       query: { q: query, filter: 'videos' },
       headers: HEADERS,
     });
 
     if (!res.ok) {
-      const networkErr: SearchError = {
-        type: 'network',
-        message: `Piped returned status ${res.status}`,
-      };
-      throw networkErr;
+      throw new Error(`Piped returned status ${res.status}`);
     }
 
     const data = res.data;
     if (!data?.items || !Array.isArray(data.items)) {
-      const networkErr: SearchError = {
-        type: 'network',
-        message: 'Unexpected response from Piped',
-      };
-      throw networkErr;
+      throw new Error(`Unexpected response from ${baseUrl}`);
     }
 
     const results: YoutubeVideoResult[] = data.items
@@ -92,5 +98,25 @@ export class PipedApi {
       .filter((item) => item.videoId);
 
     return { results, nextPageToken: data.nextpage || undefined };
+  }
+
+  async search(query: string): Promise<{ results: YoutubeVideoResult[]; nextPageToken?: string }> {
+    const errors: string[] = [];
+
+    for (const baseUrl of [...this.#instances]) {
+      try {
+        const result = await this.tryInstance(baseUrl, query);
+        return result;
+      } catch (err) {
+        errors.push(`${baseUrl}: ${err instanceof Error ? err.message : 'unknown error'}`);
+        this.demoteInstance(baseUrl);
+      }
+    }
+
+    const networkErr: SearchError = {
+      type: 'network',
+      message: `All Piped instances failed: ${errors.join('; ')}`,
+    };
+    throw networkErr;
   }
 }

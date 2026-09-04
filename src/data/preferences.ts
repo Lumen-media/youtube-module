@@ -14,6 +14,8 @@ const DEFAULTS: YoutubePreferences = {
   searchSource: 'auto',
 };
 
+const VALID_SOURCES = new Set<YoutubePreferences['searchSource']>(['auto', 'google', 'piped']);
+
 export class PreferencesStore {
   private loaded = false;
   private prefs: YoutubePreferences = { ...DEFAULTS };
@@ -24,7 +26,9 @@ export class PreferencesStore {
     if (this.loaded) return this.prefs;
     const saved = await this.store.get<Partial<YoutubePreferences>>(PREFS_KEY);
     if (saved && typeof saved === 'object') {
-      this.prefs = { ...DEFAULTS, ...saved };
+      const merged = { ...DEFAULTS, ...saved };
+      if (!VALID_SOURCES.has(merged.searchSource)) merged.searchSource = 'auto';
+      this.prefs = merged;
     }
     this.loaded = true;
     return this.prefs;

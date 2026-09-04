@@ -91,5 +91,5 @@ export interface YoutubePreferences {
   safeSearch: 'none' | 'moderate' | 'strict';
   defaultAction: 'addToQueue' | 'playNow';
   maxResults: 5 | 10 | 25 | 50;
-  searchSource: 'auto' | 'google' | 'piped' | 'invidious';
+  searchSource: 'auto' | 'google' | 'piped';
 }

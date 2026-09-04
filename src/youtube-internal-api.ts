@@ -28,7 +28,6 @@ interface YtVideoRenderer {
 }
 
 const RE_YTDATA = /(?:var\s+)?ytInitialData\s*=\s*(\{.+?\});\s*<\/script>/s;
-const RE_CFG = /ytcfg\.set\s*\(\s*(\{.+?\})\s*\)/s;
 
 function parseDurationSeconds(text: string): number {
   const parts = text.split(':').map(Number);
@@ -47,12 +46,12 @@ export class YoutubeInternalApi {
   constructor(
     private net: NetAPI,
     private regionCode: string,
-    private language: string,
+    private language: string
   ) {}
 
   async search(
     query: string,
-    pageToken?: string,
+    pageToken?: string
   ): Promise<{ results: YoutubeVideoResult[]; nextPageToken?: string }> {
     try {
       const url = pageToken
@@ -92,7 +91,7 @@ export class YoutubeInternalApi {
       }
 
       const results = this.extractVideos(data);
-      const nextPageToken = this.extractContinuation(data, html) || undefined;
+      const nextPageToken = this.extractContinuation(data) || undefined;
 
       return { results, nextPageToken };
     } catch (err) {
@@ -132,13 +131,10 @@ export class YoutubeInternalApi {
           thumbnails?.[thumbnails.length - 1]?.url ??
           `https://i.ytimg.com/vi/${vr.videoId}/mqdefault.jpg`;
 
-        const title =
-          vr.title?.runs?.[0]?.text ?? vr.title?.simpleText ?? '';
+        const title = vr.title?.runs?.[0]?.text ?? vr.title?.simpleText ?? '';
 
         const channelTitle =
-          vr.longBylineText?.runs?.[0]?.text ??
-          vr.ownerText?.runs?.[0]?.text ??
-          '';
+          vr.longBylineText?.runs?.[0]?.text ?? vr.ownerText?.runs?.[0]?.text ?? '';
 
         const channelId =
           vr.longBylineText?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.browseId ||
@@ -156,9 +152,8 @@ export class YoutubeInternalApi {
           : undefined;
 
         const desc =
-          vr.detailedMetadataSnippets?.[0]?.snippetText?.runs
-            ?.map((r) => r.text)
-            .join('') || undefined;
+          vr.detailedMetadataSnippets?.[0]?.snippetText?.runs?.map((r) => r.text).join('') ||
+          undefined;
 
         results.push({
           videoId: vr.videoId,
@@ -179,7 +174,7 @@ export class YoutubeInternalApi {
     return results;
   }
 
-  private extractContinuation(data: Record<string, unknown>, html: string): string | null {
+  private extractContinuation(data: Record<string, unknown>): string | null {
     const contents = data?.contents as Record<string, unknown> | undefined;
     const twoCol = contents?.twoColumnSearchResultsRenderer as Record<string, unknown> | undefined;
     const primary = twoCol?.primaryContents as Record<string, unknown> | undefined;
