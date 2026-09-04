@@ -14,23 +14,23 @@
     "format": "biome format --write src/"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.101.2",
-    "@tanstack/react-virtual": "^3.14.5",
-    "lucide-react": "^1.23.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "tailwindcss": "^4.3.2",
+    "@tanstack/react-query": "^5.102.8",
+    "@tanstack/react-virtual": "^3.14.10",
+    "lucide-react": "^1.40.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "tailwindcss": "^4.3.3",
     "usehooks-ts": "^3.1.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.2",
+    "@biomejs/biome": "^2.5.12",
     "@lumen-media/module-cli": "^0.12.4",
-    "@lumen-media/module-sdk": "^0.12.4",
-    "@tailwindcss/postcss": "^4.3.2",
-    "@types/node": "^22.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "typescript": "^5.7.2",
-    "vite": "^7.0.0"
+    "@lumen-media/module-sdk": "^0.12.6",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^22.20.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.6"
   }
 }
