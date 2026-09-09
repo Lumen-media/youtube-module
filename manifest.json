@@ -1,12 +1,13 @@
 {
-  "id": "com.lumen-media.youtube-module",
+  "id": "com.lumenmedia.youtube",
   "name": "YouTube",
   "version": "1.3.0",
   "api": "^0.1.0",
   "minLumenVersion": "0.1.0",
   "description": "Search YouTube videos and add them to your queue, library, or play them directly.",
   "author": {
-    "name": "Lumen Media"
+    "name": "Lumen Media",
+    "url": "https://github.com/Lumen-media"
   },
   "entry": "main.js",
   "license": "MIT",
