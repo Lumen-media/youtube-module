@@ -15,10 +15,26 @@ interface PipedVideoItem {
   uploaderName: string;
   uploaderUrl: string;
   uploadedDate?: string;
+  uploaded?: number;
   shortDescription?: string;
   duration: number;
   views: number;
   isShort?: boolean;
+}
+
+function epochMsToIso(uploaded: number): string | undefined {
+  if (!Number.isFinite(uploaded) || uploaded <= 0) return undefined;
+  const ms = uploaded < 100_000_000_000 ? uploaded * 1000 : uploaded;
+  const date = new Date(ms);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+}
+
+function uploadedToPublishedAt(item: PipedVideoItem): string | undefined {
+  const fromTimestamp = item.uploaded ? epochMsToIso(item.uploaded) : undefined;
+  if (fromTimestamp) return fromTimestamp;
+  if (!item.uploadedDate) return undefined;
+  const date = new Date(item.uploadedDate);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
 }
 
 interface PipedResponse {
@@ -89,7 +105,7 @@ export class PipedApi {
           channelId: extractChannelId(item.uploaderUrl),
           description: item.shortDescription || undefined,
           thumbnailUrl: item.thumbnail,
-          publishedAt: item.uploadedDate || undefined,
+          publishedAt: uploadedToPublishedAt(item),
           durationSeconds: item.duration > 0 ? item.duration : undefined,
           viewCount: item.views > 0 ? item.views : undefined,
           liveBroadcastContent: 'none' as const,

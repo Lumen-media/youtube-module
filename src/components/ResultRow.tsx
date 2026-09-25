@@ -28,7 +28,9 @@ function formatDuration(seconds?: number): string {
 
 function timeAgo(dateStr?: string): string {
   if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
+  const timestamp = new Date(dateStr).getTime();
+  if (Number.isNaN(timestamp)) return '';
+  const diff = Date.now() - timestamp;
   const days = Math.floor(diff / 86400000);
   if (days < 1) return t('today');
   if (days < 30) return t('daysAgo', { count: days });
