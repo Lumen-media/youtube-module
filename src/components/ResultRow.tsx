@@ -127,6 +127,10 @@ export function ResultRow({
             className="w-40 aspect-video rounded object-cover shrink-0 bg-muted"
             loading="lazy"
             referrerPolicy="no-referrer"
+            onError={(e) => {
+              const img = e.target as HTMLImageElement;
+              img.src = `https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`;
+            }}
           />
         ) : (
           <div className="w-40 aspect-video rounded object-cover shrink-0 bg-muted flex items-center justify-center text-muted-foreground">

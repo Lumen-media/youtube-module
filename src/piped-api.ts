@@ -58,6 +58,18 @@ function extractChannelId(url: string): string | undefined {
   return match?.[1];
 }
 
+function extractVideoIdFromThumbnail(thumbnail: string): string | null {
+  const match = thumbnail.match(/\/vi\/([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
+
+function thumbnailToYtUrl(thumbnail: string): string | null {
+  const videoId = extractVideoIdFromThumbnail(thumbnail);
+  if (!videoId) return null;
+  const ytUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+  return ytUrl;
+}
+
 export class PipedApi {
   #instances: string[];
 
@@ -97,6 +109,10 @@ export class PipedApi {
       .filter((item) => item.type !== 'channel' && item.type !== 'playlist' && !item.isShort)
       .map((item) => {
         const videoId = extractVideoId(item.url);
+        const ytThumbnail = thumbnailToYtUrl(item.thumbnail);
+        // Log thumbnail info for debugging
+        console.log('Piped thumbnail:', item.thumbnail);
+        console.log('Converted YouTube thumbnail:', ytThumbnail);
         return {
           videoId,
           url: videoId ? makeVideoUrl(videoId) : item.url,
@@ -104,7 +120,7 @@ export class PipedApi {
           channelTitle: item.uploaderName,
           channelId: extractChannelId(item.uploaderUrl),
           description: item.shortDescription || undefined,
-          thumbnailUrl: item.thumbnail,
+          thumbnailUrl: ytThumbnail ?? item.thumbnail,
           publishedAt: uploadedToPublishedAt(item),
           durationSeconds: item.duration > 0 ? item.duration : undefined,
           viewCount: item.views > 0 ? item.views : undefined,
